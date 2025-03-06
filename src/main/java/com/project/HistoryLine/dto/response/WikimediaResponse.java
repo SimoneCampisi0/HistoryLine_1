@@ -1,0 +1,23 @@
+package com.project.HistoryLine.dto.response;
+
+import com.project.HistoryLine.dto.SearchItem;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Getter
+@Service
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class WikimediaResponse {
+
+    private String searchedKeyword;
+
+    private List<SearchItem> items;
+
+}

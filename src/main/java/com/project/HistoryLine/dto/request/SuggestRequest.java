@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.sql.Date;
 
 @Getter
-public class CharacterSearchRequest {
+public class SuggestRequest {
 
     private String name;
 
@@ -14,6 +14,5 @@ public class CharacterSearchRequest {
     private Date startDate;
 
     private Date endDate;
-
 
 }
