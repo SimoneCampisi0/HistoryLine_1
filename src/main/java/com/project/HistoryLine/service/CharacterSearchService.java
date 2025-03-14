@@ -26,7 +26,7 @@ public class CharacterSearchService {
     private String wikimediaResourceUrl;
 
     public CharacterResponse findCharacter(SearchItem item) throws Exception {
-
+        String url = wikimediaResourceUrl + "?action=query&prop=revisions&titles=Carlo_Magno&rvslots=*&rvprop=content&formatversion=2&format=json";
         return null;
     }
 
