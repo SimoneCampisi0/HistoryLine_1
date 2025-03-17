@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -25,8 +27,28 @@ public class CharacterSearchService {
     @Value("${wikimedia.resource.url}")
     private String wikimediaResourceUrl;
 
-    public CharacterResponse findCharacter(SearchItem item) throws Exception {
-        String url = wikimediaResourceUrl + "?action=query&prop=revisions&titles=Carlo_Magno&rvslots=*&rvprop=content&formatversion=2&format=json";
+    private String getCharacterNameFromLink(SearchItem item) {
+        return item.getLink() != null ? item.getLink().substring(30) : null;
+    }
+
+    /**
+     * Partendo da un singolo risultato (SearchItem individuato dall'API sottostante)
+     * ottiene il wikitesto da inviare successivamente alle API di OpenAI. TODO
+     * @param item
+     * @return
+     * @throws Exception
+     */
+
+    public CharacterResponse findCharacter(SearchItem item) throws BusinessLogicException {
+        Map<String, String> params = new HashMap<>();
+        params.put("character_name", getCharacterNameFromLink(item));
+        params.put("format", "json");
+
+        try {
+            String wikimedia_body = wikimediaService.getElements(wikimediaResourceUrl, params);
+        } catch (Exception ex) {
+            throw new BusinessLogicException("Error in find character", "Single character not found", ExceptionLevelEnum.ERROR);
+        }
         return null;
     }
 
@@ -37,7 +59,7 @@ public class CharacterSearchService {
      * deserializza il JSON e crea un WikimediaResponse con la keyword e i risultati.
      */
 
-    public WikimediaResponse suggestResults(SuggestRequest request) throws Exception {
+    public WikimediaResponse suggestResults(SuggestRequest request) throws BusinessLogicException {
         if(request.getName() == null || request.getName().isEmpty()) {
             log.error("Character name empty");
             throw new BusinessLogicException("Character name empty", "Character name is empty", ExceptionLevelEnum.ERROR);
@@ -77,7 +99,7 @@ public class CharacterSearchService {
             log.info("response: {}", wikimediaResponse);
             return wikimediaResponse;
         } catch (Exception e) {
-            throw new Exception(e);
+            throw new BusinessLogicException("Error in find list of character", "List of suggest characters not found", ExceptionLevelEnum.ERROR);
         }
     }
 
