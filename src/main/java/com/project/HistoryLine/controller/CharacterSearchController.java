@@ -8,13 +8,13 @@ import com.project.HistoryLine.service.CharacterSearchService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/character")
+@CrossOrigin("http://localhost:5173")
 public class CharacterSearchController {
 
     private final CharacterSearchService service;
@@ -23,13 +23,13 @@ public class CharacterSearchController {
         this.service = service;
     }
 
-    @GetMapping
+    @PostMapping
     public ResponseEntity<WikimediaResponse> suggestResults(@Valid @RequestBody SuggestRequest request) throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(service.suggestResults(request));
     }
 
-    @GetMapping("/find-character")
-    public ResponseEntity<CharacterResponse> findCharacter(@Valid @RequestBody SearchItem request) throws Exception {
+    @PostMapping("/find-character")
+    public ResponseEntity<List<String>> findCharacter(@Valid @RequestBody SearchItem request) throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(service.findCharacter(request));
     }
 

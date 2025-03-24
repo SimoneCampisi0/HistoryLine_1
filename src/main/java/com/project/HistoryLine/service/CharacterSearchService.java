@@ -1,5 +1,6 @@
 package com.project.HistoryLine.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.HistoryLine.dto.request.SuggestRequest;
 import com.project.HistoryLine.dto.SearchItem;
@@ -31,6 +32,24 @@ public class CharacterSearchService {
         return item.getLink() != null ? item.getLink().substring(30) : null;
     }
 
+    private List<String> splitText(String text) {
+        String marker = "== Note ==";
+        int index = text.indexOf(marker);
+        if(index != -1) {
+            text = text.substring(0, index);
+        }
+
+        List<String> splittedText = new ArrayList<>();
+        int len = text.length();
+        int sizeToken = len / 4;  // TODO: per il momento suddivido il token semplicemente in quattro
+        for(int i = 0; i < len - sizeToken; i += sizeToken) {
+            String buffer = text.substring(i, i+sizeToken);
+            splittedText.add(buffer);
+        }
+
+        return splittedText;
+    }
+
     /**
      * Partendo da un singolo risultato (SearchItem individuato dall'API sottostante)
      * ottiene il wikitesto da inviare successivamente alle API di OpenAI. TODO
@@ -38,18 +57,36 @@ public class CharacterSearchService {
      * @return
      * @throws Exception
      */
-
-    public CharacterResponse findCharacter(SearchItem item) throws BusinessLogicException {
+    public List<String> findCharacter(SearchItem item) throws BusinessLogicException {
         Map<String, String> params = new HashMap<>();
         params.put("character_name", getCharacterNameFromLink(item));
         params.put("format", "json");
 
         try {
             String wikimedia_body = wikimediaService.getElements(wikimediaResourceUrl, params);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(wikimedia_body);
+            JsonNode wikitextNode = root.path("query")
+                    .path("pages")
+                    .get(0)
+                    .path("revisions")
+                    .get(0)
+                    .path("slots")
+                    .path("main")
+                    .path("content");
+
+            String wikiText = wikitextNode.asText().replaceAll("<[^>]+>", "");
+            log.info("wikitext {}", wikiText);
+
+
+            List<String> splittedWikiText = splitText(wikiText);
+            if(splittedWikiText.isEmpty()) {
+                throw new BusinessLogicException("Text splitting failed", "Text splitting phase failed", ExceptionLevelEnum.ERROR);
+            }
+            return splittedWikiText;
         } catch (Exception ex) {
             throw new BusinessLogicException("Error in find character", "Single character not found", ExceptionLevelEnum.ERROR);
         }
-        return null;
     }
 
 
@@ -78,7 +115,10 @@ public class CharacterSearchService {
 
             List<SearchItem> items = new ArrayList<>();
 
-            for(int i = 0; i < results.size(); i++){
+            for(int i = 0; i < results.size(); i++) {
+                if(results.get(i) == null || links.get(i) == null) {
+                    throw new BusinessLogicException("Error in suggest results", "Result is null", ExceptionLevelEnum.ERROR);
+                }
                 String result = results.get(i);
                 String extraOption = extraOptions.get(i);
                 String link = links.get(i);
