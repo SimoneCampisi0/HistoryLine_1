@@ -94,6 +94,7 @@ public class CharacterSearchService {
      * Esegue una ricerca su Wikimedia in base al nome del personaggio.
      * Lancia un'eccezione se il nome è nullo o vuoto, esegue la chiamata al servizio,
      * deserializza il JSON e crea un WikimediaResponse con la keyword e i risultati.
+     * TODO: aggiungere eventuale paginazione e limite numerico ai risultati
      */
 
     public WikimediaResponse suggestResults(SuggestRequest request) throws BusinessLogicException {
