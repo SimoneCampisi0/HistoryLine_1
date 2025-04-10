@@ -1,6 +1,6 @@
 package com.project.HistoryLine.dto.response;
 
-import com.project.HistoryLine.dto.SearchItem;
+import com.project.HistoryLine.rdf4j.dto.SuggestRDFJ4Response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +18,6 @@ public class WikimediaResponse {
 
     private String searchedKeyword;
 
-    private List<SearchItem> items;
+    private List<SuggestRDFJ4Response> items;
 
 }

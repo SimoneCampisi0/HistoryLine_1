@@ -107,9 +107,16 @@ public class CharacterSearchService {
             throw new BusinessLogicException("Character name empty", "Character name is empty", ExceptionLevelEnum.ERROR);
         }
 
-        //TODO: ritornare la List<SuggestRDFJ4Response> ottenuta dal metodo all'API. Rendere più veloce la query
-        List<SuggestRDFJ4Response> suggestList = characterDao.executeFindCharacterQuery(request.getName());
-        return new WikimediaResponse();
+        try {
+            List<SuggestRDFJ4Response> suggestList = characterDao.executeFindCharacterQuery(request.getName());
+            return WikimediaResponse.builder()
+                    .searchedKeyword(request.getName())
+                    .items(suggestList)
+                    .build();
+        } catch(Exception e) {
+            throw new BusinessLogicException("Error in find list of character", "List of suggest characters not found", ExceptionLevelEnum.ERROR);
+        }
+
         /*
         String url = wikimediaResourceUrl + "?action=opensearch&search=" + request.getName();
 
