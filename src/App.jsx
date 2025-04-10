@@ -1,6 +1,6 @@
 import './App.css'
 import Menu from "./components/Menu.jsx";
-import Search from "./components/Search.jsx";
+import Search from "./components/Search/Search.jsx";
 
 function App() {
 

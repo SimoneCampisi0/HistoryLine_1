@@ -1,0 +1,14 @@
+.suggest-result {
+    color: white;
+    background-color: #242424;
+    border: 1px solid #242424;
+    padding: 0.8em;
+    margin: 0;
+    width: 552px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.suggest-result:hover {
+    background-color: #323232;
+}

@@ -1,20 +1,11 @@
 import {useEffect, useState} from "react";
-import {getSuggestCharacters} from "../services/CharacterService.js";
+import {getSuggestCharacters} from "../../services/CharacterService.js";
+import './Search.css';
 
 function Search() {
     const [searchText, setSearchText] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState(null);
     const [suggestResults, setSuggestResults] = useState([]);
-
-    const suggestStyle = {
-        color: "white",
-        border: "1px solid white",
-        padding: "0.8em",
-        margin: 0,
-        gap: 0,
-        width: "552px",
-        cursor: "pointer",
-    };
 
     async function getSuggestCharactersList() {
         const req = {
@@ -67,7 +58,7 @@ function Search() {
                     console.log("response: ", r);
                     setSuggestResults(r.items);
                 });
-        }, 200);
+        }, 400);
 
         return () => clearTimeout(debounce); // Pulisco il timer se searchText varia prima che il timer scada
     }, [searchText]); // In questo modo viene rilevato ogni cambiamento allo state di searchText
@@ -75,12 +66,12 @@ function Search() {
 
     return (
         <>
-            <div className="form-group d-flex flex-column justify-content-center align-items-center p-4 text-white">
-                <div className="h2">Discovery life of a historical character!</div>
+            <div className="form-group d-flex flex-column justify-content-center align-items-center p-4 text-white  mt-5">
+                <div className="h2 mb-4">Discovery life of a historical character!</div>
                 {/*Modificare width con la lunghezza del div sopra*/}
                 <input
                     style={{ width: 552 }}
-                    className="form-control"
+                    className="form-control "
                     type="text"
                     placeholder="Search historical character..."
                     value={searchText}
@@ -91,18 +82,19 @@ function Search() {
                         <div className="mt-1 mb-3">
                             <>
                                 {suggestResults.map((item, index) => (
-                                    <div className="rounded" style={suggestStyle} key={index} onClick={() => onSelectedValue(item)}>{item.result}</div>
+                                    // <div className="rounded suggest-result" key={index} onClick={() => onSelectedValue(item)}>{item.itemLabel}</div>
+                                    <div className="suggest-result" key={index} onClick={() => onSelectedValue(item)}>{item.itemLabel}</div>
                                 ))}
                             </>
                         </div>
                     )
                 }
                 {errorMessage && (
-                    <div>
+                    <div className="mt-4 mb-2">
                         {errorMessage.message}
                     </div>
                 )}
-                <button className="btn btn-dark" onClick={onSearchButton}>Search</button>
+                <button className="btn btn-dark mt-4" onClick={onSearchButton}>Search</button>
             </div>
         </>
     )
