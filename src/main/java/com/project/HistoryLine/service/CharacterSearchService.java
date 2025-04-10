@@ -4,9 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.HistoryLine.dto.request.SuggestRequest;
 import com.project.HistoryLine.dto.SearchItem;
-import com.project.HistoryLine.dto.response.CharacterResponse;
 import com.project.HistoryLine.dto.response.WikimediaResponse;
 import com.project.HistoryLine.exceptions.BusinessLogicException;
+import com.project.HistoryLine.rdf4j.CharacterDao;
+import com.project.HistoryLine.rdf4j.dto.SuggestRDFJ4Response;
 import com.project.HistoryLine.utils.enums.ExceptionLevelEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class CharacterSearchService {
 
     @Value("${wikimedia.resource.url}")
     private String wikimediaResourceUrl;
+
+    @Autowired
+    private CharacterDao characterDao;
 
     private String getCharacterNameFromLink(SearchItem item) {
         return item.getLink() != null ? item.getLink().substring(30) : null;
@@ -102,6 +106,11 @@ public class CharacterSearchService {
             log.error("Character name empty");
             throw new BusinessLogicException("Character name empty", "Character name is empty", ExceptionLevelEnum.ERROR);
         }
+
+        //TODO: ritornare la List<SuggestRDFJ4Response> ottenuta dal metodo all'API. Rendere più veloce la query
+        List<SuggestRDFJ4Response> suggestList = characterDao.executeFindCharacterQuery(request.getName());
+        return new WikimediaResponse();
+        /*
         String url = wikimediaResourceUrl + "?action=opensearch&search=" + request.getName();
 
         try {
@@ -142,6 +151,7 @@ public class CharacterSearchService {
         } catch (Exception e) {
             throw new BusinessLogicException("Error in find list of character", "List of suggest characters not found", ExceptionLevelEnum.ERROR);
         }
+         */
     }
 
 }
