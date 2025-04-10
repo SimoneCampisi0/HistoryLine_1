@@ -6,6 +6,7 @@ function Search() {
     const [searchText, setSearchText] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState(null);
     const [suggestResults, setSuggestResults] = useState([]);
+    const [showSuggest, setShowSuggest] = useState(false);
 
     async function getSuggestCharactersList() {
         const req = {
@@ -34,6 +35,7 @@ function Search() {
 
     function onSelectedValue (item) {
         console.log("searched: ", item);
+        setShowSuggest(false);
         setErrorMessage(null);
     }
 
@@ -48,6 +50,8 @@ function Search() {
             return;
         }
 
+        setShowSuggest(true);
+
         const debounce = setTimeout(() => {
             if(!validateText()) {
                 clearSearch();
@@ -58,7 +62,7 @@ function Search() {
                     console.log("response: ", r);
                     setSuggestResults(r.items);
                 });
-        }, 400);
+        }, 300);
 
         return () => clearTimeout(debounce); // Pulisco il timer se searchText varia prima che il timer scada
     }, [searchText]); // In questo modo viene rilevato ogni cambiamento allo state di searchText
@@ -77,7 +81,7 @@ function Search() {
                     value={searchText}
                     onChange={e => setSearchText(e.target.value)}
                 />
-                {suggestResults && suggestResults.length > 0 &&
+                {suggestResults && showSuggest && suggestResults.length > 0 &&
                     (
                         <div className="mt-1 mb-3">
                             <>
