@@ -38,7 +38,7 @@ public class CharacterDao extends RDF4JDao {
     @Override
     protected NamedSparqlSupplierPreparer prepareNamedSparqlSuppliers(NamedSparqlSupplierPreparer preparer) {
         String query = """
-                SELECT ?item ?itemLabel ?article
+                 SELECT ?item ?itemLabel ?article
                         WHERE {
                           SERVICE wikibase:mwapi {
                             bd:serviceParam wikibase:api "EntitySearch".
@@ -47,7 +47,8 @@ public class CharacterDao extends RDF4JDao {
                             bd:serviceParam mwapi:language "it".
                             ?item wikibase:apiOutputItem mwapi:item.
                           }
-                          ?item wdt:P31 wd:Q5.
+                          ?item wdt:P31 wd:Q5.                    # è un umano
+                          ?item wdt:P570 ?dateOfDeath.            # ha data di morte ⇒ è deceduto
                           OPTIONAL {
                             ?article schema:about ?item;
                                      schema:inLanguage "it";
@@ -58,7 +59,6 @@ public class CharacterDao extends RDF4JDao {
                           FILTER(CONTAINS(LCASE(?itemLabel), LCASE(?searchItem)))
                         }
                         LIMIT 10
-                
                 """;
         return preparer.forKey(QUERY_KEYS.FIND_CHARACTERS_SUGGEST)
                 .supplySparql(query);
