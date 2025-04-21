@@ -1,28 +1,36 @@
 import {useEffect, useState} from "react";
-import {getSuggestCharacters} from "../../services/CharacterService.js";
+import {getCharactersEvent, getSuggestCharacters} from "../../services/CharacterService.js";
 import './Search.css';
 
 function Search() {
-    const [searchText, setSearchText] = useState(undefined);
+    const [searchedParams, setSearchedParams] = useState({
+        text: undefined,
+        origin: undefined
+    });
     const [errorMessage, setErrorMessage] = useState(null);
     const [suggestResults, setSuggestResults] = useState([]);
     const [showSuggest, setShowSuggest] = useState(false);
+    const [selected, setSelected] = useState(null);
 
     async function getSuggestCharactersList() {
         const req = {
-            name: searchText,
+            name: searchedParams.text,
         }
         return await getSuggestCharacters(req);
     }
 
+    async function getCharactersEventList(request) {
+        return await getCharactersEvent(request);
+    }
+
     function clearSearch() {
-        setSearchText("");
+        setSearchedParams(null);
         setSuggestResults(null);
         console.log("clearSearch");
     }
 
     function validateText() {
-        if (searchText.trim() === "") {
+        if (searchedParams.text.trim() === "") {
             setErrorMessage({
                 errorName: "Search empty.",
                 message: "Insert a text to search.",
@@ -35,29 +43,59 @@ function Search() {
 
     function onSelectedValue (item) {
         console.log("searched: ", item);
+        setSelected(item);
+        setSearchedParams({
+            text: item.itemLabel,
+            origin: 'suggest'
+        });
         setShowSuggest(false);
         setErrorMessage(null);
     }
 
     function onSearchButton () {
-        console.log("searched: ", searchText);
         setErrorMessage(null);
+        if(selected === null || selected === undefined) {
+            if(suggestResults.length > 0){
+                setSelected(suggestResults[0]);(suggestResults[0]);
+                //invoco API per individuare il primo risultato
+
+                return;
+            } else {
+                //implementare print "Nessun personaggio selezionato / personaggio non trovato"
+                return;
+            }
+        }
+
+        const req = {
+            result: selected.itemLabel,
+            link: selected.item,
+            extraOption: null
+        }
+
+        getCharactersEventList(req)
+            .then(response => {
+                console.log("charactersEventList: ", response);
+            })
     }
 
+
     useEffect(() => {
-        if(searchText === undefined) {
+        if(searchedParams.text === undefined) {
             console.log("searchText is undefined");
             return;
         }
 
-        setShowSuggest(true);
+        if(searchedParams && searchedParams.origin === 'suggest') {
+            return;
+        }
 
+        setShowSuggest(true);
         const debounce = setTimeout(() => {
             if(!validateText()) {
                 clearSearch();
                 return;
             }
-            getSuggestCharactersList(searchText)
+            getSuggestCharactersList(searchedParams.text)
                 .then(r => {
                     console.log("response: ", r);
                     setSuggestResults(r.items);
@@ -65,7 +103,7 @@ function Search() {
         }, 300);
 
         return () => clearTimeout(debounce); // Pulisco il timer se searchText varia prima che il timer scada
-    }, [searchText]); // In questo modo viene rilevato ogni cambiamento allo state di searchText
+    }, [searchedParams]); // In questo modo viene rilevato ogni cambiamento allo state di searchText
 
 
     return (
@@ -78,8 +116,11 @@ function Search() {
                     className="form-control "
                     type="text"
                     placeholder="Search historical character..."
-                    value={searchText}
-                    onChange={e => setSearchText(e.target.value)}
+                    value={searchedParams.text}
+                    onChange={e => setSearchedParams({
+                        text: e.target.value,
+                        origin: 'digit'
+                    })}
                 />
                 {suggestResults && showSuggest && suggestResults.length > 0 &&
                     (
