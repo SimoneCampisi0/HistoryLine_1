@@ -28,9 +28,9 @@ public class CharacterSearchController {
         return ResponseEntity.status(HttpStatus.OK).body(service.suggestResults(request));
     }
 
-    @PostMapping("/find-character")
-    public ResponseEntity<List<String>> findCharacter(@Valid @RequestBody SearchItem request) throws Exception {
-        return ResponseEntity.status(HttpStatus.OK).body(service.findCharacter(request));
+    @PostMapping("/find")
+    public ResponseEntity<List<String>> findCharacterEvents(@Valid @RequestBody SearchItem request) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findCharacterEvents(request));
     }
 
 }

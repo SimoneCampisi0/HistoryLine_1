@@ -37,12 +37,6 @@ public class CharacterSearchService {
     }
 
     private List<String> splitText(String text) {
-        String marker = "== Note ==";
-        int index = text.indexOf(marker);
-        if(index != -1) {
-            text = text.substring(0, index);
-        }
-
         List<String> splittedText = new ArrayList<>();
         int len = text.length();
         int sizeToken = len / 4;  // TODO: per il momento suddivido il token semplicemente in quattro
@@ -55,13 +49,27 @@ public class CharacterSearchService {
     }
 
     /**
+     * Metodo che si occupa di suddividere il wikitesto in blocchi da inviare a OpenAI.
+     * @param wikitext
+     * @return
+     */
+    private String simplifyWikitext(String wikitext) {
+        String marker = "== Note ==";
+        int index = wikitext.indexOf(marker);
+        if(index != -1) {
+            return wikitext.substring(0, index);
+        }
+        return wikitext;
+    }
+
+    /**
      * Partendo da un singolo risultato (SearchItem individuato dall'API sottostante)
      * ottiene il wikitesto da inviare successivamente alle API di OpenAI. TODO
      * @param item
      * @return
      * @throws Exception
      */
-    public List<String> findCharacter(SearchItem item) throws BusinessLogicException {
+    private List<String> findCharacter(SearchItem item) throws BusinessLogicException {
         Map<String, String> params = new HashMap<>();
         params.put("character_name", getCharacterNameFromLink(item));
         params.put("format", "json");
@@ -80,8 +88,7 @@ public class CharacterSearchService {
                     .path("content");
 
             String wikiText = wikitextNode.asText().replaceAll("<[^>]+>", "");
-            log.info("wikitext {}", wikiText);
-
+            wikiText = simplifyWikitext(wikiText);
 
             List<String> splittedWikiText = splitText(wikiText);
             if(splittedWikiText.isEmpty()) {
@@ -91,6 +98,19 @@ public class CharacterSearchService {
         } catch (Exception ex) {
             throw new BusinessLogicException("Error in find character", "Single character not found", ExceptionLevelEnum.ERROR);
         }
+    }
+
+    /**
+     * Metodo che, una volta ottenuto il wikitesto, lo invia alle API di ChatGPT
+     * @param item
+     * @return
+     * @throws BusinessLogicException
+     */
+    public List<String> findCharacterEvents(SearchItem item) throws BusinessLogicException {
+        //TODO: implementare invocazione API di OpenAI.
+        List<String> wikiTextBlock = findCharacter(item);
+
+        return new ArrayList<>();
     }
 
 
