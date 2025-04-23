@@ -48,7 +48,6 @@ public class CharacterSearchService {
             String buffer = text.substring(i, i+sizeToken);
             splittedText.add(buffer);
         }
-
         return splittedText;
     }
 
