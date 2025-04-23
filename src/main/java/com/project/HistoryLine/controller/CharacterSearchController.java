@@ -1,8 +1,8 @@
 package com.project.HistoryLine.controller;
 
+import com.project.HistoryLine.dto.CharacterEvents;
 import com.project.HistoryLine.dto.SearchItem;
 import com.project.HistoryLine.dto.request.SuggestRequest;
-import com.project.HistoryLine.dto.response.CharacterResponse;
 import com.project.HistoryLine.dto.response.WikimediaResponse;
 import com.project.HistoryLine.service.CharacterSearchService;
 import jakarta.validation.Valid;
@@ -24,12 +24,12 @@ public class CharacterSearchController {
     }
 
     @PostMapping
-    public ResponseEntity<WikimediaResponse> suggestResults(@Valid @RequestBody SuggestRequest request) throws Exception {
+    public ResponseEntity<WikimediaResponse> suggestResults(@Valid @RequestBody SuggestRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(service.suggestResults(request));
     }
 
     @PostMapping("/find")
-    public ResponseEntity<List<String>> findCharacterEvents(@Valid @RequestBody SearchItem request) throws Exception {
+    public ResponseEntity<List<CharacterEvents>> findCharacterEvents(@Valid @RequestBody SearchItem request){
         return ResponseEntity.status(HttpStatus.OK).body(service.findCharacterEvents(request));
     }
 

@@ -2,6 +2,7 @@ package com.project.HistoryLine.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.HistoryLine.dto.CharacterEvents;
 import com.project.HistoryLine.dto.request.SuggestRequest;
 import com.project.HistoryLine.dto.SearchItem;
 import com.project.HistoryLine.dto.response.WikimediaResponse;
@@ -22,6 +23,9 @@ import java.util.Map;
 @Service
 @Slf4j
 public class CharacterSearchService {
+
+    @Autowired
+    private OpenAIService openAiService;
 
     @Autowired
     private WikimediaService wikimediaService;
@@ -69,7 +73,7 @@ public class CharacterSearchService {
      * @return
      * @throws Exception
      */
-    private List<String> findCharacter(SearchItem item) throws BusinessLogicException {
+    private List<CharacterEvents> findCharacter(SearchItem item) throws BusinessLogicException {
         Map<String, String> params = new HashMap<>();
         params.put("character_name", getCharacterNameFromLink(item));
         params.put("format", "json");
@@ -89,12 +93,7 @@ public class CharacterSearchService {
 
             String wikiText = wikitextNode.asText().replaceAll("<[^>]+>", "");
             wikiText = simplifyWikitext(wikiText);
-
-            List<String> splittedWikiText = splitText(wikiText);
-            if(splittedWikiText.isEmpty()) {
-                throw new BusinessLogicException("Text splitting failed", "Text splitting phase failed", ExceptionLevelEnum.ERROR);
-            }
-            return splittedWikiText;
+            return openAiService.generateOutput(wikiText.replace("{{", "\\{\\{"));
         } catch (Exception ex) {
             throw new BusinessLogicException("Error in find character", "Single character not found", ExceptionLevelEnum.ERROR);
         }
@@ -106,11 +105,8 @@ public class CharacterSearchService {
      * @return
      * @throws BusinessLogicException
      */
-    public List<String> findCharacterEvents(SearchItem item) throws BusinessLogicException {
-        //TODO: implementare invocazione API di OpenAI.
-        List<String> wikiTextBlock = findCharacter(item);
-
-        return new ArrayList<>();
+    public List<CharacterEvents> findCharacterEvents(SearchItem item) throws BusinessLogicException {
+        return findCharacter(item);
     }
 
 
@@ -120,7 +116,6 @@ public class CharacterSearchService {
      * deserializza il JSON e crea un WikimediaResponse con la keyword e i risultati.
      * TODO: aggiungere eventuale paginazione e limite numerico ai risultati
      */
-
     public WikimediaResponse suggestResults(SuggestRequest request) throws BusinessLogicException {
         if(request.getName() == null || request.getName().isEmpty()) {
             log.error("Character name empty");
@@ -136,49 +131,6 @@ public class CharacterSearchService {
         } catch(Exception e) {
             throw new BusinessLogicException("Error in find list of character", "List of suggest characters not found", ExceptionLevelEnum.ERROR);
         }
-
-        /*
-        String url = wikimediaResourceUrl + "?action=opensearch&search=" + request.getName();
-
-        try {
-            String jsonResponse = wikimediaService.getElements(url);
-            ObjectMapper mapper = new ObjectMapper();
-            List<Object> rawData = mapper.readValue(jsonResponse, List.class);
-
-            String keyword = (String) rawData.get(0);
-            List<String> results = (List<String>) rawData.get(1);
-            List<String> extraOptions = (List<String>) rawData.get(2);
-            List<String> links = (List<String>) rawData.get(3);
-
-            List<SearchItem> items = new ArrayList<>();
-
-            for(int i = 0; i < results.size(); i++) {
-                if(results.get(i) == null || links.get(i) == null) {
-                    throw new BusinessLogicException("Error in suggest results", "Result is null", ExceptionLevelEnum.ERROR);
-                }
-                String result = results.get(i);
-                String extraOption = extraOptions.get(i);
-                String link = links.get(i);
-
-                SearchItem item = SearchItem.builder()
-                        .result(result)
-                        .extraOption(extraOption)
-                        .link(link)
-                        .build();
-                items.add(item);
-            }
-
-            WikimediaResponse wikimediaResponse = WikimediaResponse.builder()
-                    .searchedKeyword(keyword)
-                    .items(items)
-                    .build();
-
-            log.info("response: {}", wikimediaResponse);
-            return wikimediaResponse;
-        } catch (Exception e) {
-            throw new BusinessLogicException("Error in find list of character", "List of suggest characters not found", ExceptionLevelEnum.ERROR);
-        }
-         */
     }
 
 }
