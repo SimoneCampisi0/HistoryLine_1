@@ -1,6 +1,6 @@
 package com.project.HistoryLine.dto.response;
 
-import com.project.HistoryLine.dto.CharacterEvents;
+import com.project.HistoryLine.dto.CharacterEventsDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +14,6 @@ import java.util.List;
 @Builder
 public class CharacterResponse {
 
-    private List<CharacterEvents> characterEvents;
+    private List<CharacterEventsDTO> characterEventDTOS;
 
 }

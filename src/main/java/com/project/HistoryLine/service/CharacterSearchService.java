@@ -2,23 +2,25 @@ package com.project.HistoryLine.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.HistoryLine.dto.CharacterEvents;
+import com.google.gson.Gson;
+import com.google.gson.reflect.*;
+import com.project.HistoryLine.dto.CharacterEventsDTO;
 import com.project.HistoryLine.dto.request.SuggestRequest;
 import com.project.HistoryLine.dto.SearchItem;
 import com.project.HistoryLine.dto.response.WikimediaResponse;
 import com.project.HistoryLine.exceptions.BusinessLogicException;
+import com.project.HistoryLine.model.Character;
 import com.project.HistoryLine.rdf4j.CharacterDao;
 import com.project.HistoryLine.rdf4j.dto.SuggestRDFJ4Response;
+import com.project.HistoryLine.service.persistence.CharacterPersistenceService;
 import com.project.HistoryLine.utils.enums.ExceptionLevelEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Type;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -29,6 +31,9 @@ public class CharacterSearchService {
 
     @Autowired
     private WikimediaService wikimediaService;
+
+    @Autowired
+    private CharacterPersistenceService characterPersistenceService;
 
     @Value("${wikimedia.resource.url}")
     private String wikimediaResourceUrl;
@@ -72,7 +77,7 @@ public class CharacterSearchService {
      * @return
      * @throws Exception
      */
-    private List<CharacterEvents> findCharacter(SearchItem item) throws BusinessLogicException {
+    private String findCharacter(SearchItem item) throws BusinessLogicException {
         Map<String, String> params = new HashMap<>();
         params.put("character_name", getCharacterNameFromLink(item));
         params.put("format", "json");
@@ -99,13 +104,25 @@ public class CharacterSearchService {
     }
 
     /**
-     * Metodo che, una volta ottenuto il wikitesto, lo invia alle API di ChatGPT
+     * Metodo che, una volta ottenuto il wikitesto, lo invia alle API di ChatGPT e ne casta la risposta in CharacterEventsDTO
      * @param item
      * @return
      * @throws BusinessLogicException
      */
-    public List<CharacterEvents> findCharacterEvents(SearchItem item) throws BusinessLogicException {
-        return findCharacter(item);
+    public List<CharacterEventsDTO> findCharacterEvents(SearchItem item) throws BusinessLogicException {
+        Character characterFound = characterPersistenceService.findByLink(item.getLink());
+        if(!Objects.isNull(characterFound)) {
+            return characterPersistenceService.findCharacterEvents(characterFound);
+        }
+        String respText = findCharacter(item);
+        log.info("wikitext {}", respText);
+        Gson parser = new Gson();
+        Type listType = new TypeToken<List<CharacterEventsDTO>>() {}.getType();
+
+        List<CharacterEventsDTO> list = parser.fromJson(respText, listType);
+        characterPersistenceService.saveCharacter(item, respText, list);
+        log.info("found list: {}", list);
+        return list;
     }
 
 

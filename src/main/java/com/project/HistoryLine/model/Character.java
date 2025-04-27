@@ -1,10 +1,11 @@
 package com.project.HistoryLine.model;
 
+import com.project.HistoryLine.dto.CharacterEventsDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Date;
-import java.util.UUID;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -16,18 +17,19 @@ import java.util.UUID;
 public class Character {
 
     @Id
+    @Column(nullable = false, name = "ID_CHARACTER")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer id_character;
 
     @Column(nullable = false, name = "NAME")
     private String name;
 
-    @Column(name = "description")
-    private String description;
+    @Column(nullable = false, name = "LINK")
+    private String link;
 
-    @Column(name = "start_date")
-    private Date startDate; // inizio periodo ricerca personaggio storico
+    @Column(nullable = false, name = "SAVE_DATE")
+    private Date saveDate;
 
-    @Column( name = "end_date")
-    private Date endDate; // fine periodo ricerca personaggio storico
+    @OneToMany(mappedBy = "fkCharacter")
+    private List<TCharacterEvents> characterEventsDTOList;
 }
