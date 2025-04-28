@@ -11,8 +11,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "T_CHARACTER_EVENTS")
-public class TCharacterEvents {
+@Table(name = "T_CHARACTER_EVENTS_CACHE")
+public class CharacterEventsCache {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +29,6 @@ public class TCharacterEvents {
 
     @ManyToOne
     @JoinColumn(name="ID_CHARACTER", nullable=false)
-    private Character fkCharacter;
+    private CharacterCache fkCharacterCache;
 
 }

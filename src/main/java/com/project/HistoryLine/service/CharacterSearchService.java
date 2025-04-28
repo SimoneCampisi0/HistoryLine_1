@@ -9,10 +9,10 @@ import com.project.HistoryLine.dto.request.SuggestRequest;
 import com.project.HistoryLine.dto.SearchItem;
 import com.project.HistoryLine.dto.response.WikimediaResponse;
 import com.project.HistoryLine.exceptions.BusinessLogicException;
-import com.project.HistoryLine.model.Character;
+import com.project.HistoryLine.model.CharacterCache;
 import com.project.HistoryLine.rdf4j.CharacterDao;
 import com.project.HistoryLine.rdf4j.dto.SuggestRDFJ4Response;
-import com.project.HistoryLine.service.persistence.CharacterPersistenceService;
+import com.project.HistoryLine.service.cache.CharacterCacheService;
 import com.project.HistoryLine.utils.enums.ExceptionLevelEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class CharacterSearchService {
     private WikimediaService wikimediaService;
 
     @Autowired
-    private CharacterPersistenceService characterPersistenceService;
+    private CharacterCacheService characterCacheService;
 
     @Value("${wikimedia.resource.url}")
     private String wikimediaResourceUrl;
@@ -110,9 +110,9 @@ public class CharacterSearchService {
      * @throws BusinessLogicException
      */
     public List<CharacterEventsDTO> findCharacterEvents(SearchItem item) throws BusinessLogicException {
-        Character characterFound = characterPersistenceService.findByLink(item.getLink());
-        if(!Objects.isNull(characterFound)) {
-            return characterPersistenceService.findCharacterEvents(characterFound);
+        CharacterCache characterCacheFound = characterCacheService.findByLink(item.getLink());
+        if(!Objects.isNull(characterCacheFound)) {
+            return characterCacheService.findCharacterEvents(characterCacheFound);
         }
         String respText = findCharacter(item);
         log.info("wikitext {}", respText);
@@ -120,7 +120,7 @@ public class CharacterSearchService {
         Type listType = new TypeToken<List<CharacterEventsDTO>>() {}.getType();
 
         List<CharacterEventsDTO> list = parser.fromJson(respText, listType);
-        characterPersistenceService.saveCharacter(item, respText, list);
+        characterCacheService.saveCharacter(item, list);
         log.info("found list: {}", list);
         return list;
     }
@@ -134,8 +134,8 @@ public class CharacterSearchService {
      */
     public WikimediaResponse suggestResults(SuggestRequest request) throws BusinessLogicException {
         if(request.getName() == null || request.getName().isEmpty()) {
-            log.error("Character name empty");
-            throw new BusinessLogicException("Character name empty", "Character name is empty", ExceptionLevelEnum.ERROR);
+            log.error("CharacterCache name empty");
+            throw new BusinessLogicException("CharacterCache name empty", "CharacterCache name is empty", ExceptionLevelEnum.ERROR);
         }
 
         try {

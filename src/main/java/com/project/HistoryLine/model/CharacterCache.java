@@ -1,6 +1,5 @@
 package com.project.HistoryLine.model;
 
-import com.project.HistoryLine.dto.CharacterEventsDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,8 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "T_CHARACTER")
-public class Character {
+@Table(name = "T_CHARACTER_CACHE")
+public class CharacterCache {
 
     @Id
     @Column(nullable = false, name = "ID_CHARACTER")
@@ -30,6 +29,6 @@ public class Character {
     @Column(nullable = false, name = "SAVE_DATE")
     private Date saveDate;
 
-    @OneToMany(mappedBy = "fkCharacter")
-    private List<TCharacterEvents> characterEventsDTOList;
+    @OneToMany(mappedBy = "fkCharacterCache")
+    private List<CharacterEventsCache> characterEventsDTOList;
 }
