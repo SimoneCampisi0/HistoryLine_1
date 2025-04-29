@@ -38,7 +38,6 @@ public class CharacterCacheService {
     /**
      * Metodo che salva un Character ricercato nell'opportuna tabella di cache
      * @param item
-     * @param wikitext
      * @param events
      * @throws BusinessLogicException
      */
