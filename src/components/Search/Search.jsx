@@ -27,7 +27,8 @@ function Search() {
     function clearSearch() {
         setSearchedParams({
             text: '',
-            origin: ''
+            origin: '',
+            alreadySearched: true
         });
         setSuggestResults(null);
         console.log("clearSearch");
@@ -49,6 +50,7 @@ function Search() {
         console.log("searched: ", item);
         setSelected(item);
         setSearchedParams({
+            ...searchedParams,
             text: item.itemLabel,
             origin: 'suggest'
         });
@@ -56,11 +58,13 @@ function Search() {
         setErrorMessage(null);
     }
 
+    /* TODO: aggiungere blocco di click a ripetizione */
     function onSearchButton () {
+        if(!searchedParams.alreadySearched || errorMessage) return;
         setErrorMessage(null);
         if(selected === null || selected === undefined) {
-            if(suggestResults.length > 0){
-                setSelected(suggestResults[0]);(suggestResults[0]);
+            if(suggestResults && suggestResults.length > 0){
+                setSelected(suggestResults[0]);
                 //invoco API per individuare il primo risultato
 
                 return;
