@@ -4,8 +4,9 @@ import './Search.css';
 
 function Search() {
     const [searchedParams, setSearchedParams] = useState({
-        text: undefined,
-        origin: undefined
+        text: '',
+        origin: '',
+        alreadySearched: false,
     });
     const [errorMessage, setErrorMessage] = useState(null);
     const [suggestResults, setSuggestResults] = useState([]);
@@ -24,7 +25,10 @@ function Search() {
     }
 
     function clearSearch() {
-        setSearchedParams(null);
+        setSearchedParams({
+            text: '',
+            origin: ''
+        });
         setSuggestResults(null);
         console.log("clearSearch");
     }
@@ -80,6 +84,8 @@ function Search() {
 
 
     useEffect(() => {
+        if(!searchedParams.alreadySearched) return;
+
         if(searchedParams.text === undefined) {
             console.log("searchText is undefined");
             return;
@@ -103,7 +109,7 @@ function Search() {
         }, 300);
 
         return () => clearTimeout(debounce); // Pulisco il timer se searchText varia prima che il timer scada
-    }, [searchedParams]); // In questo modo viene rilevato ogni cambiamento allo state di searchText
+    }, [searchedParams.text]); // In questo modo viene rilevato ogni cambiamento allo state di searchText
 
 
     return (
@@ -119,7 +125,8 @@ function Search() {
                     value={searchedParams.text}
                     onChange={e => setSearchedParams({
                         text: e.target.value,
-                        origin: 'digit'
+                        origin: 'digit',
+                        alreadySearched: true,
                     })}
                 />
                 {suggestResults && showSuggest && suggestResults.length > 0 &&
