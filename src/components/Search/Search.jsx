@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {getCharactersEvent, getSuggestCharacters} from "../../services/CharacterService.js";
 import './Search.css';
 
-function Search() {
+function Search({ resultEvents, setResultEvent}) {
     const [searchedParams, setSearchedParams] = useState({
         text: '',
         origin: '',
@@ -40,7 +40,8 @@ function Search() {
                 errorName: "Search empty.",
                 message: "Insert a text to search.",
                 code: "001",
-            })
+            });
+            setResultEvent(null);
             return false;
         }
         return true;
@@ -83,6 +84,11 @@ function Search() {
         getCharactersEventList(req)
             .then(response => {
                 console.log("charactersEventList: ", response);
+                setResultEvent({
+                    characterName: req.result,
+                    link: req.link,
+                    events: response
+                });
             })
     }
 
