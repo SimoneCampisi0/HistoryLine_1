@@ -25,6 +25,24 @@ public class OpenAIService {
             Devi inviarmi SOLTANTO L'ARRAY!
             Sii il più completo e dettagliato possibile sugli eventi della vita del personaggio storico.
             """;
+    private static final String QUERY_SYSTEM_MESSAGE_EN = """
+            You will be sent a wikitext containing information about a historical figure, in a single prompt/message.s
+            From this wikitext, you must create a JSON array that RIGOROUSLY follows the pattern of this class:
+            {
+             "eventName": "exampleEventName",
+             "eventDescription": "exampleEventDescription",
+             "eventDate": "0001-01-01"
+            }
+            THE DATE MUST ALWAYS BE IN THE FORMAT "yyyy-mm-dd"!
+            Add, in the case of years less than 4 digits in length, zeros 0 as a placeholder.
+            Also, always specify months and days. If you can't specify them, always indicate them with the first day of the gennary month.
+            Example: Fall of Rome: 0476-01-01
+            All the information you will use to compile the JSON array must be obtained EXCLUSIVELY from the wikitext
+            You must then indicate the main events that happened in the life of the historical figure.
+            The array must then contain all the most important and indicative events of that historical figure!
+            You must send me ONLY the ARRAY!
+            Be as complete and detailed as possible about the events in the historical character's life.
+            """;
 
     private final ChatClient chatClient;
 
@@ -34,7 +52,7 @@ public class OpenAIService {
 
     public String generateOutput(String message) {
         return chatClient.prompt()
-                .system(QUERY_SYSTEM_MESSAGE)
+                .system(QUERY_SYSTEM_MESSAGE_EN)
                 .user(message)
                 .call().content();
     }

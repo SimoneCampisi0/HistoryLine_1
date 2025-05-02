@@ -44,18 +44,18 @@ public class CharacterDao extends RDF4JDao {
                             bd:serviceParam wikibase:api "EntitySearch".
                             bd:serviceParam wikibase:endpoint "www.wikidata.org".
                             bd:serviceParam mwapi:search ?searchItem.
-                            bd:serviceParam mwapi:language "it".
+                            bd:serviceParam mwapi:language "en".
                             ?item wikibase:apiOutputItem mwapi:item.
                           }
                           ?item wdt:P31 wd:Q5.                    # è un umano
                           ?item wdt:P570 ?dateOfDeath.            # ha data di morte ⇒ è deceduto
                           OPTIONAL {
                             ?article schema:about ?item;
-                                     schema:inLanguage "it";
-                                     schema:isPartOf <https://it.wikipedia.org/>.
+                                     schema:inLanguage "en";
+                                     schema:isPartOf <https://en.wikipedia.org/>.
                           }
                           ?item rdfs:label ?itemLabel.
-                          FILTER(LANG(?itemLabel) = "it")
+                          FILTER(LANG(?itemLabel) = "en")
                           FILTER(CONTAINS(LCASE(?itemLabel), LCASE(?searchItem)))
                         }
                         LIMIT 10
