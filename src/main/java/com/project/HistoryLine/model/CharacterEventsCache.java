@@ -15,6 +15,7 @@ import java.util.Date;
 public class CharacterEventsCache {
 
     @Id
+    @Column(nullable = false, name = "ID_CHARACTER_EVENT")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

@@ -7,7 +7,9 @@ import org.eclipse.rdf4j.spring.dao.RDF4JDao;
 import org.eclipse.rdf4j.spring.support.RDF4JTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -16,28 +18,34 @@ public class CharacterDao extends RDF4JDao {
 
     static abstract class QUERY_KEYS {
         public static final String FIND_CHARACTERS_SUGGEST = "find-characters-suggest";
+        public static final String FIND_CHARACTERS_SUGGEST_IT = "find-characters-suggest-it";
     }
 
-    public CharacterDao(RDF4JTemplate rdf4JTemplate) {
-        super(rdf4JTemplate);
-    }
-
-    private SuggestRDFJ4Response mapBindingSetToResponse(BindingSet binding) {
-        log.info("binding {}", binding);
-        if(binding.getValue("article") == null) {
-            return null;
-        }
-        SuggestRDFJ4Response response = SuggestRDFJ4Response.builder()
-                .item(binding.getValue("article").stringValue())
-                .itemLabel(binding.getValue("itemLabel").stringValue())
-                .build();
-        log.debug("Suggest response: {}", response);
-        return response;
-    }
-
-    @Override
-    protected NamedSparqlSupplierPreparer prepareNamedSparqlSuppliers(NamedSparqlSupplierPreparer preparer) {
-        String query = """
+    private final Map<String, String> queryMap = Map.of("italian","""
+                 SELECT ?item ?itemLabel ?article
+                        WHERE {
+                          SERVICE wikibase:mwapi {
+                            bd:serviceParam wikibase:api "EntitySearch".
+                            bd:serviceParam wikibase:endpoint "www.wikidata.org".
+                            bd:serviceParam mwapi:search ?searchItem.
+                            bd:serviceParam mwapi:language "it".
+                            ?item wikibase:apiOutputItem mwapi:item.
+                          }
+                          ?item wdt:P31 wd:Q5.                    # è un umano
+                          ?item wdt:P570 ?dateOfDeath.            # ha data di morte ⇒ è deceduto
+                          OPTIONAL {
+                            ?article schema:about ?item;
+                                     schema:inLanguage "it";
+                                     schema:isPartOf <https://it.wikipedia.org/>.
+                          }
+                          ?item rdfs:label ?itemLabel.
+                          FILTER(LANG(?itemLabel) = "it")
+                          FILTER(CONTAINS(LCASE(?itemLabel), LCASE(?searchItem)))
+                        }
+                        LIMIT 10
+                """,
+            "english",
+            """
                  SELECT ?item ?itemLabel ?article
                         WHERE {
                           SERVICE wikibase:mwapi {
@@ -59,15 +67,38 @@ public class CharacterDao extends RDF4JDao {
                           FILTER(CONTAINS(LCASE(?itemLabel), LCASE(?searchItem)))
                         }
                         LIMIT 10
-                """;
-        return preparer.forKey(QUERY_KEYS.FIND_CHARACTERS_SUGGEST)
-                .supplySparql(query);
+                """
+            );
+
+    public CharacterDao(RDF4JTemplate rdf4JTemplate) {
+        super(rdf4JTemplate);
     }
 
-    public List<SuggestRDFJ4Response> executeFindCharacterQuery(String searchItem) {
+    private SuggestRDFJ4Response mapBindingSetToResponse(BindingSet binding) {
+        log.info("binding {}", binding);
+        if(binding.getValue("article") == null) {
+            return null;
+        }
+        SuggestRDFJ4Response response = SuggestRDFJ4Response.builder()
+                .item(binding.getValue("article").stringValue())
+                .itemLabel(binding.getValue("itemLabel").stringValue())
+                .build();
+        log.debug("Suggest response: {}", response);
+        return response;
+    }
+
+    @Override
+    protected NamedSparqlSupplierPreparer prepareNamedSparqlSuppliers(NamedSparqlSupplierPreparer preparer) {
+        return preparer.forKey(QUERY_KEYS.FIND_CHARACTERS_SUGGEST)
+                .supplySparql(queryMap.get("english"))
+                .forKey(QUERY_KEYS.FIND_CHARACTERS_SUGGEST_IT)
+                .supplySparql(queryMap.get("italian"));
+    }
+
+    public List<SuggestRDFJ4Response> executeFindCharacterQuery(String searchItem, String languageName) {
         searchItem = searchItem.toLowerCase();
         log.info("searchItem: {}", searchItem);
-        List<SuggestRDFJ4Response> suggestList = getNamedTupleQuery(QUERY_KEYS.FIND_CHARACTERS_SUGGEST)
+        List<SuggestRDFJ4Response> suggestList = getNamedTupleQuery(languageName.equals("english") ? QUERY_KEYS.FIND_CHARACTERS_SUGGEST : QUERY_KEYS.FIND_CHARACTERS_SUGGEST_IT)
                 .withBinding("searchItem", searchItem)
                 .evaluateAndConvert()
                 .toStream()

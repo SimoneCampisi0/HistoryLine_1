@@ -15,4 +15,6 @@ public class SuggestRequest {
 
     private Date endDate;
 
+    private String languageName;
+
 }

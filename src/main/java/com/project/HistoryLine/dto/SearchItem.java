@@ -16,4 +16,6 @@ public class SearchItem {
 
     private String link;
 
+    private String languageName;
+
 }

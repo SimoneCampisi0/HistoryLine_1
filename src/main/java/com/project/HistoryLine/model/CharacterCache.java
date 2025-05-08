@@ -31,4 +31,9 @@ public class CharacterCache {
 
     @OneToMany(mappedBy = "fkCharacterCache")
     private List<CharacterEventsCache> characterEventsDTOList;
+
+    @ManyToOne
+    @JoinColumn(name="ID_LANGUAGE_CACHE", nullable=false)
+    private LanguageCache fkLanguageCache;
+
 }

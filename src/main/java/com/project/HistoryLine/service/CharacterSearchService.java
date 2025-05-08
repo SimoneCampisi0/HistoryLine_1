@@ -10,8 +10,10 @@ import com.project.HistoryLine.dto.SearchItem;
 import com.project.HistoryLine.dto.response.WikimediaResponse;
 import com.project.HistoryLine.exceptions.BusinessLogicException;
 import com.project.HistoryLine.model.CharacterCache;
+import com.project.HistoryLine.model.LanguageCache;
 import com.project.HistoryLine.rdf4j.CharacterDao;
 import com.project.HistoryLine.rdf4j.dto.SuggestRDFJ4Response;
+import com.project.HistoryLine.repository.LanguageCacheRepo;
 import com.project.HistoryLine.service.cache.CharacterCacheService;
 import com.project.HistoryLine.utils.enums.ExceptionLevelEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +37,11 @@ public class CharacterSearchService {
     @Autowired
     private CharacterCacheService characterCacheService;
 
-    @Value("${wikimedia.resource.url}")
-    private String wikimediaResourceUrl;
-
     @Autowired
     private CharacterDao characterDao;
+
+    @Autowired
+    private LanguageCacheRepo languageCacheRepo;
 
     private String getCharacterNameFromLink(SearchItem item) {
         return item.getLink() != null ? item.getLink().substring(30) : null;
@@ -77,13 +79,14 @@ public class CharacterSearchService {
      * @return
      * @throws Exception
      */
-    private String findCharacter(SearchItem item) throws BusinessLogicException {
+    private String findCharacter(SearchItem item, LanguageCache languageCache) throws BusinessLogicException {
         Map<String, String> params = new HashMap<>();
         params.put("character_name", getCharacterNameFromLink(item));
         params.put("format", "json");
 
         try {
-            String wikimedia_body = wikimediaService.getElements(wikimediaResourceUrl, params);
+            String wikimediaResourceLink = languageCache.getLink();
+            String wikimedia_body = wikimediaService.getElements(wikimediaResourceLink, params);
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(wikimedia_body);
             JsonNode wikitextNode = root.path("query")
@@ -114,13 +117,14 @@ public class CharacterSearchService {
         if(!Objects.isNull(characterCacheFound)) {
             return characterCacheService.findCharacterEvents(characterCacheFound);
         }
-        String respText = findCharacter(item);
+        LanguageCache languageCache = languageCacheRepo.findLanguageCacheByName(item.getLanguageName());
+        String respText = findCharacter(item, languageCache);
         log.info("wikitext {}", respText);
         Gson parser = new Gson();
         Type listType = new TypeToken<List<CharacterEventsDTO>>() {}.getType();
 
         List<CharacterEventsDTO> list = parser.fromJson(respText, listType);
-        characterCacheService.saveCharacter(item, list);
+        characterCacheService.saveCharacter(item, languageCache, list);
         log.info("found list: {}", list);
         return list;
     }
@@ -139,7 +143,8 @@ public class CharacterSearchService {
         }
 
         try {
-            List<SuggestRDFJ4Response> suggestList = characterDao.executeFindCharacterQuery(request.getName());
+            LanguageCache languageCache = languageCacheRepo.findLanguageCacheByName(request.getLanguageName());
+            List<SuggestRDFJ4Response> suggestList = characterDao.executeFindCharacterQuery(request.getName(), languageCache.getName());
             return WikimediaResponse.builder()
                     .searchedKeyword(request.getName())
                     .items(suggestList)

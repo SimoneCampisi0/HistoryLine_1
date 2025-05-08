@@ -5,6 +5,7 @@ import com.project.HistoryLine.dto.SearchItem;
 import com.project.HistoryLine.exceptions.BusinessLogicException;
 import com.project.HistoryLine.model.CharacterCache;
 import com.project.HistoryLine.model.CharacterEventsCache;
+import com.project.HistoryLine.model.LanguageCache;
 import com.project.HistoryLine.repository.CharacterCacheRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,13 +42,14 @@ public class CharacterCacheService {
      * @param events
      * @throws BusinessLogicException
      */
-    public void saveCharacter(SearchItem item, List<CharacterEventsDTO> events) throws BusinessLogicException {
+    public void saveCharacter(SearchItem item, LanguageCache languageCache, List<CharacterEventsDTO> events) throws BusinessLogicException {
         List<CharacterEventsCache> characterEventCaches = mapCharacterEvents(events);
         CharacterCache characterCache = CharacterCache.builder()
                 .name(item.getResult())
                 .link(item.getLink())
                 .characterEventsDTOList(characterEventCaches)
                 .saveDate(new Date())
+                .fkLanguageCache(languageCache)
                 .build();
         repository.save(characterCache);
         for(CharacterEventsCache event : characterEventCaches) {
