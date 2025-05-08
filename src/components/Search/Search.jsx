@@ -16,6 +16,7 @@ function Search({ resultEvents, setResultEvent}) {
     async function getSuggestCharactersList() {
         const req = {
             name: searchedParams.text,
+            languageName: 'english'
         }
         return await getSuggestCharacters(req);
     }
@@ -78,7 +79,8 @@ function Search({ resultEvents, setResultEvent}) {
         const req = {
             result: selected.itemLabel,
             link: selected.item,
-            extraOption: null
+            extraOption: null,
+            languageName: 'english'
         }
 
         getCharactersEventList(req)
