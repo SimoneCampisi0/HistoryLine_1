@@ -21,7 +21,7 @@ public class CharacterDao extends RDF4JDao {
         public static final String FIND_CHARACTERS_SUGGEST_IT = "find-characters-suggest-it";
     }
 
-    private final Map<String, String> queryMap = Map.of("italian","""
+    private static final Map<String, String> queryMap = Map.of("italian","""
                  SELECT ?item ?itemLabel ?article
                         WHERE {
                           SERVICE wikibase:mwapi {
