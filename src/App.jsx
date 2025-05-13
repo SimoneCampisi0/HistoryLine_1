@@ -6,12 +6,13 @@ import {useState} from "react";
 
 function App() {
     const [resultEvents, setResultEvent] = useState(null);
+    const [language, setLanguage] = useState('italian');
     return (<>
             <div className="w-100 min-vh-100 bg-black">
                 <div className="w-75 mx-auto">
-                    <Menu/>
-                    <Search resultEvents={resultEvents} setResultEvent={setResultEvent}/>
-                    {resultEvents && resultEvents.events.length > 0 && <Timeline resultEvents={resultEvents}/>}
+                    <Menu language={language} setLanguage={setLanguage}/>
+                    <Search language={language} resultEvents={resultEvents} setResultEvent={setResultEvent}/>
+                    {resultEvents && resultEvents.events.length > 0 && <Timeline language={language} resultEvents={resultEvents}/>}
                 </div>
             </div>
         </>)

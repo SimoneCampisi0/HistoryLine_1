@@ -1,8 +1,9 @@
 import {useEffect, useState} from "react";
 import {getCharactersEvent, getSuggestCharacters} from "../../services/CharacterService.js";
 import './Search.css';
+import PropTypes from "prop-types";
 
-function Search({ resultEvents, setResultEvent}) {
+function Search({ language, resultEvents, setResultEvent}) {
     const [searchedParams, setSearchedParams] = useState({
         text: '',
         origin: '',
@@ -16,7 +17,7 @@ function Search({ resultEvents, setResultEvent}) {
     async function getSuggestCharactersList() {
         const req = {
             name: searchedParams.text,
-            languageName: 'english'
+            languageName: language
         }
         return await getSuggestCharacters(req);
     }
@@ -37,11 +38,19 @@ function Search({ resultEvents, setResultEvent}) {
 
     function validateText() {
         if (searchedParams.text.trim() === "") {
-            setErrorMessage({
-                errorName: "Search empty.",
-                message: "Insert a text to search.",
-                code: "001",
-            });
+            if(language === 'italian') {
+                setErrorMessage({
+                    errorName: "Search empty.",
+                    message: "Inserisci un testo per la ricerca.",
+                    code: "001",
+                });
+            } else if(language === 'english') {
+                setErrorMessage({
+                    errorName: "Search empty.",
+                    message: "Insert a text to search.",
+                    code: "001",
+                });
+            }
             setResultEvent(null);
             return false;
         }
@@ -80,7 +89,7 @@ function Search({ resultEvents, setResultEvent}) {
             result: selected.itemLabel,
             link: selected.item,
             extraOption: null,
-            languageName: 'english'
+            languageName: language
         }
 
         getCharactersEventList(req)
@@ -126,42 +135,88 @@ function Search({ resultEvents, setResultEvent}) {
 
     return (
         <>
-            <div className="form-group d-flex flex-column justify-content-center align-items-center p-4 text-white  mt-5">
-                <div className="h2 mb-4">Discovery life of a historical character!</div>
-                {/*Modificare width con la lunghezza del div sopra*/}
-                <input
-                    style={{ width: 552 }}
-                    className="form-control "
-                    type="text"
-                    placeholder="Search historical character..."
-                    value={searchedParams.text}
-                    onChange={e => setSearchedParams({
-                        text: e.target.value,
-                        origin: 'digit',
-                        alreadySearched: true,
-                    })}
-                />
-                {suggestResults && showSuggest && suggestResults.length > 0 &&
-                    (
-                        <div className="mt-1 mb-3">
-                            <>
-                                {suggestResults.map((item, index) => (
-                                    // <div className="rounded suggest-result" key={index} onClick={() => onSelectedValue(item)}>{item.itemLabel}</div>
-                                    <div className="suggest-result" key={index} onClick={() => onSelectedValue(item)}>{item.itemLabel}</div>
-                                ))}
-                            </>
+            {language === 'italian' &&
+                <div className="form-group d-flex flex-column justify-content-center align-items-center p-4 text-white mt-5">
+                    <div className="h2 mb-4">Scopri la vita di un personaggio storico!</div>
+                    {/*Modificare width con la lunghezza del div sopra*/}
+                    <input
+                        style={{ width: 552 }}
+                        className="form-control "
+                        type="text"
+                        placeholder="Cerca un personaggio storico..."
+                        value={searchedParams.text}
+                        onChange={e => setSearchedParams({
+                            text: e.target.value,
+                            origin: 'digit',
+                            alreadySearched: true,
+                        })}
+                    />
+                    {suggestResults && showSuggest && suggestResults.length > 0 &&
+                        (
+                            <div className="mt-1 mb-3">
+                                <>
+                                    {suggestResults.map((item, index) => (
+                                        <div className="suggest-result" key={index} onClick={() => onSelectedValue(item)}>{item.itemLabel}</div>
+                                    ))}
+                                </>
+                            </div>
+                        )
+                    }
+                    {errorMessage && (
+                        <div className="mt-4 mb-2">
+                            {errorMessage.message}
                         </div>
-                    )
-                }
-                {errorMessage && (
-                    <div className="mt-4 mb-2">
-                        {errorMessage.message}
-                    </div>
-                )}
-                <button className="btn btn-dark mt-4" onClick={onSearchButton}>Search</button>
-            </div>
+                    )}
+                    <button className="btn btn-dark mt-4" onClick={onSearchButton}>Cerca</button>
+                </div>
+            }
+            {language === 'english' &&
+                <div className="form-group d-flex flex-column justify-content-center align-items-center p-4 text-white mt-5">
+                    <div className="h2 mb-4">Discovery life of a historical character!</div>
+                    {/*Modificare width con la lunghezza del div sopra*/}
+                    <input
+                        style={{ width: 552 }}
+                        className="form-control "
+                        type="text"
+                        placeholder="Search historical character..."
+                        value={searchedParams.text}
+                        onChange={e => setSearchedParams({
+                            text: e.target.value,
+                            origin: 'digit',
+                            alreadySearched: true,
+                        })}
+                    />
+                    {suggestResults && showSuggest && suggestResults.length > 0 &&
+                        (
+                            <div className="mt-1 mb-3">
+                                <>
+                                    {suggestResults.map((item, index) => (
+                                        // <div className="rounded suggest-result" key={index} onClick={() => onSelectedValue(item)}>{item.itemLabel}</div>
+                                        <div className="suggest-result" key={index} onClick={() => onSelectedValue(item)}>{item.itemLabel}</div>
+                                    ))}
+                                </>
+                            </div>
+                        )
+                    }
+                    {errorMessage && (
+                        <div className="mt-4 mb-2">
+                            {errorMessage.message}
+                        </div>
+                    )}
+                    <button className="btn btn-dark mt-4" onClick={onSearchButton}>Search</button>
+                </div>
+            }
         </>
     )
+}
+
+Search.propTypes = {
+    resultEvents: PropTypes.shape({
+        characterName: PropTypes.string,
+        link: PropTypes.string,
+        events: PropTypes.array.isRequired,
+    }),
+    setResultEvent: PropTypes.func.isRequired,
 }
 
 export default Search;
