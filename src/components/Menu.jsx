@@ -1,14 +1,22 @@
-import {GB, IT, US} from "country-flag-icons/react/1x1";
 import './Menu.css'
-import Select from 'react-select'
-function Menu({ language }) {
+import PropTypes from "prop-types";
+import {useState} from "react";
+import ReactFlagsSelect from "react-flags-select";
+function Menu({ language, setLanguage }) {
 
-    //TODO: fixare CSS Select
-    const options = [
-        { value: 'gb', label: (<><GB style={{marginRight:4}}/> </>) },
-        { value: 'it', label: (<><IT style={{marginRight:4}}/> </>) },
-    ];
+    const [languageSelected, setLanguageSelected] = useState("IT");
 
+    function onChangeLanguage(code) {
+        setLanguageSelected(code)
+        switch (code) {
+            case "IT":
+                setLanguage('italian');
+                break;
+            case "GB":
+                setLanguage('english');
+                break;
+        }
+    }
 
     return (
         <>
@@ -28,13 +36,26 @@ function Menu({ language }) {
                         </>
                     }
 
-                    <Select options={options} />;
+                    <ReactFlagsSelect
+                        selectButtonClassName="custom-react-flag"
+                        selected={languageSelected}
+                        onSelect={onChangeLanguage}
+                        countries={["IT", "GB"]}
+                        showSelectedLabel={false}
+                        showSecondarySelectedLabel={false}
+                        showOptionLabel={false}
+                        fullWidth={false}
+                    />
 
                 </div>
             </div>
 
         </>
     )
+}
+
+Menu.propTypes = {
+    language: PropTypes.string.isRequired,
 }
 
 export default Menu;
