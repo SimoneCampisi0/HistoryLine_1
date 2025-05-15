@@ -5,7 +5,7 @@ import 'dayjs/locale/it';
 import PropTypes from "prop-types";
 
 function Timeline({ resultEvents, language }) {
-    // Calcola la lingua da usare
+    // TODO: aggiungere, allo switch della lingua, una chiamata all'API corrispondente.
     const selectedLocale = language === 'italian' ? 'it' : 'en';
 
     return (
