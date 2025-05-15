@@ -1,23 +1,25 @@
 import './Timeline.css';
 import dayjs from "dayjs";
-import 'dayjs/locale/en.js'
+import 'dayjs/locale/en';
+import 'dayjs/locale/it';
 import PropTypes from "prop-types";
-dayjs.locale('en');
 
-function Timeline({ resultEvents }) {
-    //TODO: aggiungere supporto date AC e DC
+function Timeline({ resultEvents, language }) {
+    // Calcola la lingua da usare
+    const selectedLocale = language === 'italian' ? 'it' : 'en';
+
     return (
         <>
             <section className="py-5">
                 <ul className="timeline">
                     {resultEvents.events.map((item, index) => {
-                        const date = dayjs(item.eventDate);
+                        const date = dayjs(item.eventDate).locale(selectedLocale);
                         const formattedDate = `${date.date()} ${date.format('MMMM')} ${date.year()}`;
                         return (
                             <li className="timeline-item mb-5" key={index}>
                                 <h5 className="fw-bold text-white">{item.eventName}</h5>
-                                <p className="text-muted mb-2 fw-bold text-white">{formattedDate}</p>
-                                <p className="text-muted">
+                                <p className="mb-2 fw-bold text-white">{formattedDate}</p>
+                                <p className="text-white">
                                     {item.eventDescription}
                                 </p>
                             </li>
@@ -35,5 +37,6 @@ Timeline.propTypes = {
         link: PropTypes.string,
         events: PropTypes.array.isRequired,
     }).isRequired,
+    language: PropTypes.string.isRequired,
 }
 export default Timeline;
