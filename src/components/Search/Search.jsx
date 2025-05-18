@@ -34,6 +34,7 @@ function Search({ language, resultEvents, setResultEvent}) {
             alreadySearched: true
         });
         setSuggestResults(null);
+        setResultEvent(null);
         console.log("clearSearch");
     }
 
@@ -147,6 +148,11 @@ function Search({ language, resultEvents, setResultEvent}) {
         return () => clearTimeout(debounce); // Pulisco il timer se searchText varia prima che il timer scada
     }, [searchedParams.text]); // In questo modo viene rilevato ogni cambiamento allo state di searchText
 
+    /* useEffect che rileva il cambio di lingua.
+    *  Pulisce un eventuale ricerca di un personaggio storico */
+    useEffect(() => {
+        clearSearch();
+    }, [language]);
 
     return (
         <>
