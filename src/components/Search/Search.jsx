@@ -13,6 +13,7 @@ function Search({ language, resultEvents, setResultEvent}) {
     const [suggestResults, setSuggestResults] = useState([]);
     const [showSuggest, setShowSuggest] = useState(false);
     const [selected, setSelected] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     async function getSuggestCharactersList() {
         const req = {
@@ -70,7 +71,7 @@ function Search({ language, resultEvents, setResultEvent}) {
     }
 
     /* TODO: aggiungere blocco di click a ripetizione */
-    function onSearchButton () {
+    async function onSearchButton () {
         if(!searchedParams.alreadySearched || errorMessage) return;
         setErrorMessage(null);
         if(selected === null || selected === undefined) {
@@ -92,15 +93,29 @@ function Search({ language, resultEvents, setResultEvent}) {
             languageName: language
         }
 
-        getCharactersEventList(req)
-            .then(response => {
-                console.log("charactersEventList: ", response);
-                setResultEvent({
-                    characterName: req.result,
-                    link: req.link,
-                    events: response
-                });
-            })
+        setLoading(true);
+        // getCharactersEventList(req)
+        //     .then(response => {
+        //         console.log("charactersEventList: ", response);
+        //         setResultEvent({
+        //             characterName: req.result,
+        //             link: req.link,
+        //             events: response
+        //         });
+        //     })
+        try {
+            const response = await getCharactersEventList(req);
+            console.log("charactersEventList: ", response);
+            setResultEvent({
+                characterName: req.result,
+                link: req.link,
+                events: response
+            });
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     }
 
 
@@ -135,6 +150,18 @@ function Search({ language, resultEvents, setResultEvent}) {
 
     return (
         <>
+
+            {/* OVERLAY DI LOADING */}
+            {loading && (
+                <div className="loading-overlay position-fixed top-0 start-0 w-100 h-100
+                        d-flex justify-content-center align-items-center
+                        bg-dark bg-opacity-50" style={{ zIndex: 1050 }}>
+                    <div className="spinner-border text-light" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            )}
+
             {language === 'italian' &&
                 <div className="form-group d-flex flex-column justify-content-center align-items-center p-4 text-white mt-5">
                     <div className="h2 mb-4">Scopri la vita di un personaggio storico!</div>
