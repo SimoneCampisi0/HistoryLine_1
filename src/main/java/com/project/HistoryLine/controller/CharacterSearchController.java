@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/character")
-@CrossOrigin("focused-appreciation-production.up.railway.app")
+@CrossOrigin("https://focused-appreciation-production.up.railway.app")
 public class CharacterSearchController {
 
     private final CharacterSearchService service;
