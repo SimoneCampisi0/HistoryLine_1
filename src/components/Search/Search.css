@@ -12,3 +12,17 @@
 .suggest-result:hover {
     background-color: #323232;
 }
+
+.search-input {
+    width: 440px !important;
+}
+
+@media (max-width: 900px) {
+   .search-input {
+       width: 250px !important;
+   }
+
+    .suggest-result {
+        width:250px !important;
+    }
+}

@@ -173,8 +173,8 @@ function Search({ language, resultEvents, setResultEvent}) {
                     <div className="h2 mb-4">Scopri la vita di un personaggio storico!</div>
                     {/*Modificare width con la lunghezza del div sopra*/}
                     <input
-                        style={{ width: 552 }}
-                        className="form-control "
+                        // style={{ width: "auto" }}
+                        className="form-control search-input"
                         type="text"
                         placeholder="Cerca un personaggio storico..."
                         value={searchedParams.text}
@@ -208,7 +208,6 @@ function Search({ language, resultEvents, setResultEvent}) {
                     <div className="h2 mb-4">Discovery life of a historical character!</div>
                     {/*Modificare width con la lunghezza del div sopra*/}
                     <input
-                        style={{ width: 552 }}
                         className="form-control "
                         type="text"
                         placeholder="Search historical character..."

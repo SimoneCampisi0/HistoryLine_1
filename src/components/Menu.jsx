@@ -20,21 +20,23 @@ function Menu({ language, setLanguage }) {
 
     return (
         <>
-            <div className="d-flex flex-row justify-content-between p-4 text-white h4 align-items-center">
+            <div className="container d-flex flex-row justify-content-between align-items-center p-4 text-white h4">
                 <div className="" role="button">HistoryLine</div>
-                <div className="d-flex flex-row justify-content-between gap-5 align-items-center">
-                    {language === 'italian' &&
-                        <>
-                            <div role="button">Home</div>
-                            <div role="button">Chi siamo</div>
-                        </>
-                    }
-                    {language === 'english' &&
-                        <>
-                            <div role="button">Home</div>
-                            <div role="button">About</div>
-                        </>
-                    }
+                <div className="d-flex flex-row align-items-center gap-4">
+                    <div className="d-none d-md-flex flex-row gap-4">
+                        {language === 'italian' &&
+                            <>
+                                <div role="button">Home</div>
+                                <div role="button">Chi siamo</div>
+                            </>
+                        }
+                        {language === 'english' &&
+                            <>
+                                <div role="button">Home</div>
+                                <div role="button">About</div>
+                            </>
+                        }
+                    </div>
 
                     <ReactFlagsSelect
                         selectButtonClassName="custom-react-flag"
