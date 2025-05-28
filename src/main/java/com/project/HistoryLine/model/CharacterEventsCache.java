@@ -28,6 +28,9 @@ public class CharacterEventsCache {
     @Column(nullable = false, name = "EVENT_DATE")
     private Date eventDate;
 
+    @Column(nullable = false, name = "IS_BEFORE_CHRIST")
+    private boolean isBeforeChrist;
+
     @ManyToOne
     @JoinColumn(name="ID_CHARACTER", nullable=false)
     private CharacterCache fkCharacterCache;

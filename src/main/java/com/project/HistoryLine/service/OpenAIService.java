@@ -13,12 +13,15 @@ public class OpenAIService {
             {
                   "eventName": "exampleEventName",
                   "eventDescription": "exampleEventDescription",
-                  "eventDate":"0001-01-01"
+                  "eventDate": "0001-01-01",
+                  "isBeforeChrist": false
             }
             LA DATA DEV'ESSERE SEMPRE NEL FORMATO "yyyy-mm-dd"!
             Aggiungi, nel caso di anni di lunghezza inferiori a 4 cifre, gli zeri 0 come placeholder.
-            Inoltre, specifica sempre i mesi e i giorni. Se non riesci a specificarli, indicali sempre con il primo giorno del mese di gennario.
+            Inoltre, specifica sempre i mesi e i giorni. Se non riesci a specificarli, indicali sempre con il primo giorno del mese di gennaio.
             Esempio: Caduta di Roma: 0476-01-01
+            Il campo isBeforeChrist è un campo booleano che dev'essere a TRUE se la data è AVANTI CRISTO, altrimenti FALSE se è DOPO CRISTO. POPOLALO SEMPRE.
+            Devi indicare se la data è b.C o a.C soltanto tramite il campo "isBeforeChrist". NON indicarlo in "eventDate".
             Tutte le infomazioni che utilizzerai per compilare l'array di JSON dovranno essere ottenute ESCLUSIVAMENTE dal wikitesto
             Devi indicare quindi gli eventi principali accaduti nella vita del personaggio storico.
             L'array deve contenere quindi tutti gli avvenimenti più importanti e indicativi di tale personaggio storico!
@@ -31,12 +34,15 @@ public class OpenAIService {
             {
              "eventName": "exampleEventName",
              "eventDescription": "exampleEventDescription",
-             "eventDate": "0001-01-01"
+             "eventDate": "0001-01-01",
+             "isBeforeChrist": false
             }
             THE DATE MUST ALWAYS BE IN THE FORMAT "yyyy-mm-dd"!
             Add, in the case of years less than 4 digits in length, zeros 0 as a placeholder.
-            Also, always specify months and days. If you can't specify them, always indicate them with the first day of the gennary month.
+            Also, always specify months and days. If you can't specify them, always indicate them with the first day of the January month.
             Example: Fall of Rome: 0476-01-01
+            The "isBeforeChrist" is a boolean field that must be at TRUE if the date is BEFORE CHRIST, otherwise FALSE if it is AFTER CHRIST. ALWAYS POPULATE IT.
+            You must indicate whether the date is b.C or a.C only via the “isBeforeChrist” field. Do NOT indicate it in “eventDate”.
             All the information you will use to compile the JSON array must be obtained EXCLUSIVELY from the wikitext
             You must then indicate the main events that happened in the life of the historical figure.
             The array must then contain all the most important and indicative events of that historical figure!

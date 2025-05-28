@@ -33,6 +33,7 @@ public class CharacterEventsCacheService {
                     .eventDate(event.getEventDate())
                     .eventDescription(event.getEventDescription())
                     .eventName(event.getEventName())
+                    .isBeforeChrist(event.isBeforeChrist())
                     .build();
             list.add(dto);
         }

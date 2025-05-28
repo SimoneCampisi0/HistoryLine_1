@@ -16,4 +16,6 @@ public class CharacterEventsDTO {
 
     private Date eventDate;
 
+    private boolean isBeforeChrist;
+
 }
