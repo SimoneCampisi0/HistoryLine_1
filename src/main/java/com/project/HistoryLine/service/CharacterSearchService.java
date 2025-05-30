@@ -7,6 +7,7 @@ import com.google.gson.reflect.*;
 import com.project.HistoryLine.dto.CharacterEventsDTO;
 import com.project.HistoryLine.dto.request.SuggestRequest;
 import com.project.HistoryLine.dto.SearchItem;
+import com.project.HistoryLine.dto.response.CharacterResponse;
 import com.project.HistoryLine.dto.response.WikimediaResponse;
 import com.project.HistoryLine.exceptions.BusinessLogicException;
 import com.project.HistoryLine.model.CharacterCache;
@@ -100,7 +101,7 @@ public class CharacterSearchService {
 
             String wikiText = wikitextNode.asText().replaceAll("<[^>]+>", "");
             wikiText = simplifyWikitext(wikiText);
-            return openAiService.generateOutput(wikiText.replace("{{", "\\{\\{"));
+            return openAiService.generateOutput(languageCache, wikiText.replace("{{", "\\{\\{"));
         } catch (Exception ex) {
             throw new BusinessLogicException("Error in find character", "Single character not found", ExceptionLevelEnum.ERROR);
         }
@@ -112,21 +113,30 @@ public class CharacterSearchService {
      * @return
      * @throws BusinessLogicException
      */
-    public List<CharacterEventsDTO> findCharacterEvents(SearchItem item) throws BusinessLogicException {
+    public CharacterResponse findCharacterEvents(SearchItem item) throws BusinessLogicException {
         CharacterCache characterCacheFound = characterCacheService.findByLink(item.getLink());
         if(!Objects.isNull(characterCacheFound)) {
             return characterCacheService.findCharacterEvents(characterCacheFound);
         }
         LanguageCache languageCache = languageCacheRepo.findLanguageCacheByName(item.getLanguageName());
-        String respText = findCharacter(item, languageCache);
-        log.info("wikitext {}", respText);
+        String respTextEvents = findCharacter(item, languageCache);
+        log.info("wikitext {}", respTextEvents);
+
+        // Esegue il parsing del testo fornito da OpenAI in JSON
         Gson parser = new Gson();
         Type listType = new TypeToken<List<CharacterEventsDTO>>() {}.getType();
+        List<CharacterEventsDTO> list = parser.fromJson(respTextEvents, listType);
 
-        List<CharacterEventsDTO> list = parser.fromJson(respText, listType);
-        characterCacheService.saveCharacter(item, languageCache, list);
+        String description = openAiService.generateCharacterDescription(respTextEvents, languageCache);
+        log.info("description {}", description);
+
+        characterCacheService.saveCharacter(item, languageCache, list, description);
         log.info("found list: {}", list);
-        return list;
+
+        return CharacterResponse.builder()
+                .characterEventDTOS(list)
+                .characterDescription(description)
+                .build();
     }
 
 

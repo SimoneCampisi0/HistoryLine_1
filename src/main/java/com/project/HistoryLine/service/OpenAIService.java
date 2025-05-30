@@ -1,5 +1,7 @@
 package com.project.HistoryLine.service;
 
+import com.project.HistoryLine.dto.SearchItem;
+import com.project.HistoryLine.model.LanguageCache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
@@ -51,6 +53,14 @@ public class OpenAIService {
             You must send me ONLY the ARRAY!
             Be as complete and detailed as possible about the events in the historical character's life.
             """;
+    private static final String QUERY_SYSTEM_DESC_IT = """
+            Riceverai la lista degli eventi più importanti della vita di un personaggio storico.
+            Realizza un riepilogo testuale esplicativo della sua vita. Devi ritornare soltanto una stringa testuale, senza nessun carattere speciale o di markup (come \\n)
+            """;
+    private static final String QUERY_SYSTEM_DESC_EN = """
+            Receive a list of the most important events in the life of a historical figure.
+            Make an explanatory textual summary of his life. You need to return only a textual string, without any special or markup characters (such as \\n)
+            """;
 
     private final ChatClient chatClient;
 
@@ -58,10 +68,17 @@ public class OpenAIService {
         this.chatClient = chatClientBuilder.build();
     }
 
-    public String generateOutput(String message) {
+    public String generateOutput(LanguageCache language, String message) {
         return chatClient.prompt()
-                .system(QUERY_SYSTEM_MESSAGE_EN)
+                .system(language.getName().equals("italian") ? QUERY_SYSTEM_MESSAGE : QUERY_SYSTEM_MESSAGE_EN)
                 .user(message)
+                .call().content();
+    }
+
+    public String generateCharacterDescription(String eventList, LanguageCache language) {
+        return chatClient.prompt()
+                .system(language.getName().equals("italian") ? QUERY_SYSTEM_DESC_IT : QUERY_SYSTEM_DESC_EN )
+                .user(eventList)
                 .call().content();
     }
 

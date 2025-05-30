@@ -14,6 +14,10 @@ import java.util.List;
 @Builder
 public class CharacterResponse {
 
+    private String characterName;
+
+    private String characterDescription;
+
     private List<CharacterEventsDTO> characterEventDTOS;
 
 }

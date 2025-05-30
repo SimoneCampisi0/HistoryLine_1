@@ -2,6 +2,7 @@ package com.project.HistoryLine.service.cache;
 
 import com.project.HistoryLine.dto.CharacterEventsDTO;
 import com.project.HistoryLine.dto.SearchItem;
+import com.project.HistoryLine.dto.response.CharacterResponse;
 import com.project.HistoryLine.exceptions.BusinessLogicException;
 import com.project.HistoryLine.model.CharacterCache;
 import com.project.HistoryLine.model.CharacterEventsCache;
@@ -42,7 +43,7 @@ public class CharacterCacheService {
      * @param events
      * @throws BusinessLogicException
      */
-    public void saveCharacter(SearchItem item, LanguageCache languageCache, List<CharacterEventsDTO> events) throws BusinessLogicException {
+    public void saveCharacter(SearchItem item, LanguageCache languageCache, List<CharacterEventsDTO> events, String description) throws BusinessLogicException {
         List<CharacterEventsCache> characterEventCaches = mapCharacterEvents(events);
         CharacterCache characterCache = CharacterCache.builder()
                 .name(item.getResult())
@@ -50,6 +51,7 @@ public class CharacterCacheService {
                 .characterEventsDTOList(characterEventCaches)
                 .saveDate(new Date())
                 .fkLanguageCache(languageCache)
+                .description(description)
                 .build();
         repository.save(characterCache);
         for(CharacterEventsCache event : characterEventCaches) {
@@ -62,8 +64,12 @@ public class CharacterCacheService {
         return repository.findCharacterByLink(link);
     }
 
-    public List<CharacterEventsDTO> findCharacterEvents(CharacterCache characterCache) {
-        return characterEventsCacheService.findCharacterEvents(characterCache);
+    public CharacterResponse findCharacterEvents(CharacterCache characterCache) {
+        return CharacterResponse.builder()
+                .characterName(characterCache.getName())
+                .characterDescription(characterCache.getDescription())
+                .characterEventDTOS(characterEventsCacheService.findCharacterEvents(characterCache))
+                .build();
     }
 
 }

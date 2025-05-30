@@ -3,6 +3,7 @@ package com.project.HistoryLine.controller;
 import com.project.HistoryLine.dto.CharacterEventsDTO;
 import com.project.HistoryLine.dto.SearchItem;
 import com.project.HistoryLine.dto.request.SuggestRequest;
+import com.project.HistoryLine.dto.response.CharacterResponse;
 import com.project.HistoryLine.dto.response.WikimediaResponse;
 import com.project.HistoryLine.service.CharacterSearchService;
 import jakarta.validation.Valid;
@@ -14,7 +15,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/character")
-@CrossOrigin("https://focused-appreciation-production.up.railway.app")
+//@CrossOrigin("https://focused-appreciation-production.up.railway.app")
+@CrossOrigin(origins = "http://localhost:5173")
 public class CharacterSearchController {
 
     private final CharacterSearchService service;
@@ -29,7 +31,7 @@ public class CharacterSearchController {
     }
 
     @PostMapping("/find")
-    public ResponseEntity<List<CharacterEventsDTO>> findCharacterEvents(@Valid @RequestBody SearchItem request){
+    public ResponseEntity<CharacterResponse> findCharacterEvents(@Valid @RequestBody SearchItem request){
         return ResponseEntity.status(HttpStatus.OK).body(service.findCharacterEvents(request));
     }
 
