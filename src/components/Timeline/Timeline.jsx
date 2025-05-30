@@ -5,7 +5,6 @@ import 'dayjs/locale/it';
 import PropTypes from "prop-types";
 
 function Timeline({ resultEvents, language }) {
-    // TODO: aggiungere, allo switch della lingua, una chiamata all'API corrispondente.
     const selectedLocale = language === 'italian' ? 'it' : 'en';
 
     return (
@@ -18,7 +17,7 @@ function Timeline({ resultEvents, language }) {
                         return (
                             <li className="timeline-item mb-5" key={index}>
                                 <h5 className="fw-bold text-white">{item.eventName}</h5>
-                                <p className="mb-2 fw-bold text-white">{formattedDate}</p>
+                                <p className="mb-2 fw-bold text-white">{formattedDate} {item.isBeforeChrist ? "b.C." : "a.C."}</p>
                                 <p className="text-white">
                                     {item.eventDescription}
                                 </p>
