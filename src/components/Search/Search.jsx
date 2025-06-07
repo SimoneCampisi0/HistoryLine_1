@@ -3,7 +3,7 @@ import {getCharactersEvent, getSuggestCharacters} from "../../services/Character
 import './Search.css';
 import PropTypes from "prop-types";
 
-function Search({ language, resultEvents, setResultEvent}) {
+function Search({ language, setResultEvent}) {
     const [searchedParams, setSearchedParams] = useState({
         text: '',
         origin: '',
@@ -108,9 +108,9 @@ function Search({ language, resultEvents, setResultEvent}) {
             const response = await getCharactersEventList(req);
             console.log("charactersEventList: ", response);
             setResultEvent({
-                characterName: req.result,
+                characterName: response.characterName,
                 link: req.link,
-                events: response
+                events: response.characterEventDTOS
             });
         } catch (err) {
             console.error(err);
@@ -243,11 +243,7 @@ function Search({ language, resultEvents, setResultEvent}) {
 }
 
 Search.propTypes = {
-    resultEvents: PropTypes.shape({
-        characterName: PropTypes.string,
-        link: PropTypes.string,
-        events: PropTypes.array.isRequired,
-    }),
+    language: PropTypes.string.isRequired,
     setResultEvent: PropTypes.func.isRequired,
 }
 

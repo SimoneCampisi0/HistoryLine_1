@@ -2,8 +2,9 @@ import './Menu.css'
 import PropTypes from "prop-types";
 import {useState} from "react";
 import ReactFlagsSelect from "react-flags-select";
+import {useNavigate} from "react-router-dom";
 function Menu({ language, setLanguage }) {
-
+    const navigate = useNavigate();
     const [languageSelected, setLanguageSelected] = useState("IT");
 
     function onChangeLanguage(code) {
@@ -18,6 +19,10 @@ function Menu({ language, setLanguage }) {
         }
     }
 
+    function goTo(path) {
+        navigate(path);
+    }
+
     return (
         <>
             <div className="container d-flex flex-row justify-content-between align-items-center p-4 text-white h4">
@@ -26,14 +31,14 @@ function Menu({ language, setLanguage }) {
                     <div className="d-none d-md-flex flex-row gap-4">
                         {language === 'italian' &&
                             <>
-                                <div role="button">Home</div>
-                                <div role="button">Chi siamo</div>
+                                <div onClick={() => goTo('/')} role="button">Home</div>
+                                <div onClick={() => goTo('/about')} role="button">Chi siamo</div>
                             </>
                         }
                         {language === 'english' &&
                             <>
-                                <div role="button">Home</div>
-                                <div role="button">About</div>
+                                <div onClick={() => goTo('/')} role="button">Home</div>
+                                <div onClick={() => goTo('/about')} role="button">About</div>
                             </>
                         }
                     </div>
@@ -58,6 +63,7 @@ function Menu({ language, setLanguage }) {
 
 Menu.propTypes = {
     language: PropTypes.string.isRequired,
+    setLanguage: PropTypes.func.isRequired,
 }
 
 export default Menu;
