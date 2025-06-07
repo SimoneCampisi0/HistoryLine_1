@@ -95,15 +95,6 @@ function Search({ language, setResultEvent}) {
         }
 
         setLoading(true);
-        // getCharactersEventList(req)
-        //     .then(response => {
-        //         console.log("charactersEventList: ", response);
-        //         setResultEvent({
-        //             characterName: req.result,
-        //             link: req.link,
-        //             events: response
-        //         });
-        //     })
         try {
             const response = await getCharactersEventList(req);
             console.log("charactersEventList: ", response);
