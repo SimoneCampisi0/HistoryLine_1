@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import {getCharactersEvent, getSuggestCharacters} from "../../services/CharacterService.js";
 import './Search.css';
 import PropTypes from "prop-types";
+import {MDBTooltip} from "mdb-react-ui-kit";
 
 function Search({ language, setResultEvent}) {
     const [searchedParams, setSearchedParams] = useState({
@@ -180,7 +181,7 @@ function Search({ language, setResultEvent}) {
                             <div className="mt-1 mb-3">
                                 <>
                                     {suggestResults.map((item, index) => (
-                                        <div className="suggest-result" key={index} onClick={() => onSelectedValue(item)}>{item.itemLabel}</div>
+                                        <div className="suggest-result" key={index} onClick={() => onSelectedValue(item)}>{item.itemLabel} - {item.itemDescription}</div>
                                     ))}
                                 </>
                             </div>
@@ -215,7 +216,7 @@ function Search({ language, setResultEvent}) {
                                 <>
                                     {suggestResults.map((item, index) => (
                                         // <div className="rounded suggest-result" key={index} onClick={() => onSelectedValue(item)}>{item.itemLabel}</div>
-                                        <div className="suggest-result" key={index} onClick={() => onSelectedValue(item)}>{item.itemLabel}</div>
+                                        <div className="suggest-result" key={index} onClick={() => onSelectedValue(item)}>{item.itemLabel} - {item.itemDescription}</div>
                                     ))}
                                 </>
                             </div>
