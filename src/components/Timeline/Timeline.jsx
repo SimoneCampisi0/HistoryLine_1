@@ -17,7 +17,8 @@ function Timeline({ resultEvents, language }) {
                         return (
                             <li className="timeline-item mb-5" key={index}>
                                 <h5 className="fw-bold text-white">{item.eventName}</h5>
-                                <p className="mb-2 fw-bold text-white">{formattedDate} {item.isBeforeChrist ? "b.C." : "a.C."}</p>
+                                {selectedLocale === 'it' && <p className="mb-2 fw-bold text-white">{formattedDate} {item.eventIsBeforeChrist ? "a.C." : ""}</p>}
+                                {selectedLocale === 'en' && <p className="mb-2 fw-bold text-white">{formattedDate} {item.eventIsBeforeChrist ? "b.C." : ""}</p>}
                                 <p className="text-white">
                                     {item.eventDescription}
                                 </p>

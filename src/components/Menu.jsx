@@ -33,7 +33,7 @@ function Menu({ language, setLanguage }) {
             <div className="container p-4 text-white h4">
                 <div className="row d-flex justify-content-center align-items-center">
                     <div className="col-6">
-                        <div className="navbar-brand" role="button">HistoryLine</div>
+                        <div className="navbar-brand" role="button" onClick={() => goTo('/')}>HistoryLine</div>
                     </div>
                     <div className="col-6">
 

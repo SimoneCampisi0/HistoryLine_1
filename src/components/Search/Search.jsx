@@ -92,7 +92,8 @@ function Search({ language, setResultEvent}) {
             result: selected.itemLabel,
             link: selected.item,
             extraOption: null,
-            languageName: language
+            languageName: language,
+            birthDate: selected.birthDate,
         }
 
         setLoading(true);
@@ -200,7 +201,7 @@ function Search({ language, setResultEvent}) {
                     <div className="h2 mb-4">Discovery life of a historical character!</div>
                     {/*Modificare width con la lunghezza del div sopra*/}
                     <input
-                        className="form-control "
+                        className="form-control search-input"
                         type="text"
                         placeholder="Search historical character..."
                         value={searchedParams.text}
