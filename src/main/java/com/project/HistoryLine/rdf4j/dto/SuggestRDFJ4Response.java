@@ -15,4 +15,8 @@ public class SuggestRDFJ4Response {
 
     private String itemLabel;
 
+    private String itemDescription;
+
+    private String birthDate;
+
 }

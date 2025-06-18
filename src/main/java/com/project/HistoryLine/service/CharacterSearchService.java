@@ -107,6 +107,10 @@ public class CharacterSearchService {
         }
     }
 
+    private boolean setBeforeChristDate(String birthDate) {
+        return birthDate.startsWith("-");
+    }
+
     /**
      * Metodo che, una volta ottenuto il wikitesto, lo invia alle API di ChatGPT e ne casta la risposta in CharacterEventsDTO
      * @param item
@@ -126,6 +130,14 @@ public class CharacterSearchService {
         Gson parser = new Gson();
         Type listType = new TypeToken<List<CharacterEventsDTO>>() {}.getType();
         List<CharacterEventsDTO> list = parser.fromJson(respTextEvents, listType);
+
+        if(list == null || list.isEmpty()) {
+            throw new BusinessLogicException("No valid list", "Character event list not populated", ExceptionLevelEnum.ERROR);
+        }
+
+        for(CharacterEventsDTO e : list) {
+            e.setBeforeChrist(setBeforeChristDate(item.getBirthDate()));
+        }
 
         String description = openAiService.generateCharacterDescription(respTextEvents, languageCache);
         log.info("description {}", description);
