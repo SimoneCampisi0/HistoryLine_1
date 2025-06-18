@@ -19,7 +19,6 @@ import com.project.HistoryLine.service.cache.CharacterCacheService;
 import com.project.HistoryLine.utils.enums.ExceptionLevelEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
@@ -136,7 +135,7 @@ public class CharacterSearchService {
         }
 
         for(CharacterEventsDTO e : list) {
-            e.setBeforeChrist(setBeforeChristDate(item.getBirthDate()));
+            e.setEventIsBeforeChrist(setBeforeChristDate(e.getEventDate().toString()));
         }
 
         String description = openAiService.generateCharacterDescription(respTextEvents, languageCache);
