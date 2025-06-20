@@ -55,7 +55,7 @@ function Menu({ language, setLanguage }) {
                                     {language === 'italian' ? (
                                         <>
                                             <div role="button" onClick={() => goTo('/')}>Home</div>
-                                            <div role="button" onClick={() => goTo('/about')}>Chi siamo</div>
+                                            <div role="button" onClick={() => goTo('/about')}>About</div>
                                         </>
                                     ) : (
                                         <>
@@ -71,7 +71,7 @@ function Menu({ language, setLanguage }) {
                                 {language === 'italian' &&
                                     <>
                                         <div className="m-2" onClick={() => goTo('/')} role="button">Home</div>
-                                        <div className="m-2" onClick={() => goTo('/about')} role="button">Chi siamo</div>
+                                        <div className="m-2" onClick={() => goTo('/about')} role="button">About</div>
                                     </>
                                 }
                                 {language === 'english' &&
