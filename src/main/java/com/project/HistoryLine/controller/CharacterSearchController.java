@@ -35,4 +35,8 @@ public class CharacterSearchController {
         return ResponseEntity.status(HttpStatus.OK).body(service.findCharacterEvents(request));
     }
 
+    @GetMapping("/description")
+    public ResponseEntity<CharacterDescriptionResp> findCharacterDescription(@Valid @RequestBody SearchItem request) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findCharacterDescription(request));
+    }
 }

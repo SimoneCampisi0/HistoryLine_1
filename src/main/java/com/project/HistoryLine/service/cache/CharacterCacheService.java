@@ -67,7 +67,6 @@ public class CharacterCacheService {
     public CharacterResponse findCharacterEvents(CharacterCache characterCache) {
         return CharacterResponse.builder()
                 .characterName(characterCache.getName())
-                .characterDescription(characterCache.getDescription())
                 .characterEventDTOS(characterEventsCacheService.findCharacterEvents(characterCache))
                 .build();
     }

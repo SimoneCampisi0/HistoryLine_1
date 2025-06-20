@@ -18,6 +18,4 @@ public class SearchItem {
 
     private String languageName;
 
-    private String birthDate;
-
 }

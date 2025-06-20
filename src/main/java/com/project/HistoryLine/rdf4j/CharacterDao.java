@@ -95,7 +95,6 @@ public class CharacterDao extends RDF4JDao {
                 .item(binding.getValue("article").stringValue())
                 .itemLabel(binding.getValue("itemLabel").stringValue())
                 .itemDescription(binding.getValue("itemDescription").stringValue())
-                .birthDate(binding.getValue("birthDate").stringValue())
                 .build();
         log.debug("Suggest response: {}", response);
         return response;

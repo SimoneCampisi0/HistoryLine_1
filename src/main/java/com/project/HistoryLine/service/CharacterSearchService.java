@@ -7,6 +7,7 @@ import com.google.gson.reflect.*;
 import com.project.HistoryLine.dto.CharacterEventsDTO;
 import com.project.HistoryLine.dto.request.SuggestRequest;
 import com.project.HistoryLine.dto.SearchItem;
+import com.project.HistoryLine.dto.response.CharacterDescriptionResp;
 import com.project.HistoryLine.dto.response.CharacterResponse;
 import com.project.HistoryLine.dto.response.WikimediaResponse;
 import com.project.HistoryLine.exceptions.BusinessLogicException;
@@ -146,7 +147,6 @@ public class CharacterSearchService {
 
         return CharacterResponse.builder()
                 .characterEventDTOS(list)
-                .characterDescription(description)
                 .build();
     }
 
@@ -173,6 +173,25 @@ public class CharacterSearchService {
         } catch(Exception e) {
             throw new BusinessLogicException("Error in find list of character", "List of suggest characters not found", ExceptionLevelEnum.ERROR);
         }
+    }
+
+    public CharacterDescriptionResp findCharacterDescription(SearchItem item) {
+        LanguageCache languageCache = languageCacheRepo.findLanguageCacheByName(item.getLanguageName());
+        String description = openAiService.generateCharacterDescription(item.getResult(), languageCache);
+        String jsonBornDeathYears = openAiService.generateCharacterBornDeathYear(item.getResult(), languageCache);
+
+        String fixed = jsonBornDeathYears.replace("{", "[").replace("}", "]");
+
+        Gson parser = new Gson();
+        Type listType = new TypeToken<List<String>>() {}.getType();
+        List<String> years = parser.fromJson(fixed, listType);
+
+        return CharacterDescriptionResp.builder()
+                .characterName(item.getResult())
+                .description(description)
+                .bornYear(years.get(0))
+                .deathYear(years.get(1))
+                .build();
     }
 
 }

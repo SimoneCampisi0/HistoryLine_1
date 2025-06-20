@@ -54,12 +54,26 @@ public class OpenAIService {
             Be as complete and detailed as possible about the events in the historical character's life.
             """;
     private static final String QUERY_SYSTEM_DESC_IT = """
-            Riceverai la lista degli eventi più importanti della vita di un personaggio storico.
+            Riceverai il nome di un personaggio storico.
             Realizza un riepilogo testuale esplicativo della sua vita. Devi ritornare soltanto una stringa testuale, senza nessun carattere speciale o di markup (come \\n)
             """;
     private static final String QUERY_SYSTEM_DESC_EN = """
-            Receive a list of the most important events in the life of a historical figure.
+            Receive a name of a historical figure.
             Make an explanatory textual summary of his life. You need to return only a textual string, without any special or markup characters (such as \\n)
+            """;
+    private static final String QUERY_BORN_DEATH_IT = """
+            Ricevuto il nome e la descrizione di un personaggio storico, indica in un array di stringhe (2 elementi),
+            l'anno di nascita e di morte di quel personaggio.
+            Es: Napoleone Bonaparte -> {"1769","1821"}.
+            Nel caso di personaggi nati o morti prima dell'anno 0, poni un - prima della data.
+            Esempio: Platone -> {"-428","-348"}.
+            """;
+    private static final String QUERY_BORN_DEATH_EN = """
+            Upon receiving the name and description of a historical figure, indicate in a string array (2 elements),
+            the year of birth and death of that figure.
+            Ex: Napoleon Bonaparte -> {"1769", "1821"}.
+            In the case of characters born or died before year 0, place a - before the date.
+            Example: Plato -> {"-428","-348"}.
             """;
 
     private final ChatClient chatClient;
@@ -75,10 +89,17 @@ public class OpenAIService {
                 .call().content();
     }
 
-    public String generateCharacterDescription(String eventList, LanguageCache language) {
+    public String generateCharacterDescription(String name, LanguageCache language) {
         return chatClient.prompt()
                 .system(language.getName().equals("italian") ? QUERY_SYSTEM_DESC_IT : QUERY_SYSTEM_DESC_EN )
-                .user(eventList)
+                .user(name)
+                .call().content();
+    }
+
+    public String generateCharacterBornDeathYear(String name, LanguageCache language) {
+        return chatClient.prompt()
+                .system(language.getName().equals("italian") ? QUERY_BORN_DEATH_IT : QUERY_BORN_DEATH_EN)
+                .user(name)
                 .call().content();
     }
 
