@@ -12,12 +12,16 @@ import com.project.HistoryLine.dto.response.CharacterResponse;
 import com.project.HistoryLine.dto.response.WikimediaResponse;
 import com.project.HistoryLine.exceptions.BusinessLogicException;
 import com.project.HistoryLine.model.CharacterCache;
+import com.project.HistoryLine.model.CharacterDetails;
 import com.project.HistoryLine.model.LanguageCache;
 import com.project.HistoryLine.rdf4j.CharacterDao;
 import com.project.HistoryLine.rdf4j.dto.SuggestRDFJ4Response;
 import com.project.HistoryLine.repository.LanguageCacheRepo;
 import com.project.HistoryLine.service.cache.CharacterCacheService;
 import com.project.HistoryLine.utils.enums.ExceptionLevelEnum;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -120,7 +124,14 @@ public class CharacterSearchService {
     public CharacterResponse findCharacterEvents(SearchItem item) throws BusinessLogicException {
         CharacterCache characterCacheFound = characterCacheService.findByLink(item.getLink());
         if(!Objects.isNull(characterCacheFound)) {
-            return characterCacheService.findCharacterEvents(characterCacheFound);
+            List<CharacterEventsDTO> eventList = characterCacheService.findCharacterEvents(characterCacheFound);
+            CharacterDetails cd = characterCacheFound.getCharacterDetails();
+
+            return CharacterResponse.builder()
+                    .characterDescription(new CharacterDescriptionResp(characterCacheFound.getName(), cd.getDescription(), cd.getBornDateYear(), cd.getDeathDateYear()))
+                    .characterEventDTOS(eventList)
+                    .characterName(characterCacheFound.getName())
+                    .build();
         }
         LanguageCache languageCache = languageCacheRepo.findLanguageCacheByName(item.getLanguageName());
         String respTextEvents = findCharacter(item, languageCache);
@@ -139,14 +150,13 @@ public class CharacterSearchService {
             e.setEventIsBeforeChrist(setBeforeChristDate(e.getEventDate().toString()));
         }
 
-        String description = openAiService.generateCharacterDescription(respTextEvents, languageCache);
-        log.info("description {}", description);
-
-        characterCacheService.saveCharacter(item, languageCache, list, description);
+        characterCacheService.saveCharacter(item, languageCache, list);
         log.info("found list: {}", list);
 
+        CharacterDescriptionResp resp = findCharacterDescription(item);
         return CharacterResponse.builder()
                 .characterEventDTOS(list)
+                .characterDescription(resp)
                 .build();
     }
 
@@ -180,18 +190,35 @@ public class CharacterSearchService {
         String description = openAiService.generateCharacterDescription(item.getResult(), languageCache);
         String jsonBornDeathYears = openAiService.generateCharacterBornDeathYear(item.getResult(), languageCache);
 
-        String fixed = jsonBornDeathYears.replace("{", "[").replace("}", "]");
-
         Gson parser = new Gson();
-        Type listType = new TypeToken<List<String>>() {}.getType();
-        List<String> years = parser.fromJson(fixed, listType);
+        Type listType = new TypeToken<BornDeathDate>() {}.getType();
+        BornDeathDate years = parser.fromJson(jsonBornDeathYears, listType);
+
+        CharacterCache ch = characterCacheService.findByLink(item.getLink());
+        CharacterDetails cd = CharacterDetails.builder()
+                .description(description)
+                .bornDateYear(years.getBorn())
+                .deathDateYear(years.getDeath())
+                .build();
+        characterCacheService.saveCharacterDetails(cd);
+
+        ch.setCharacterDetails(cd);
+        characterCacheService.updateCharacter(ch);
 
         return CharacterDescriptionResp.builder()
                 .characterName(item.getResult())
                 .description(description)
-                .bornYear(years.get(0))
-                .deathYear(years.get(1))
+                .bornYear(years.getBorn())
+                .deathYear(years.getDeath())
                 .build();
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    private static class BornDeathDate {
+        private String born;
+        private String death;
     }
 
 }

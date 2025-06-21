@@ -16,6 +16,8 @@ public class CharacterResponse {
 
     private String characterName;
 
+    private CharacterDescriptionResp characterDescription;
+
     private List<CharacterEventsDTO> characterEventDTOS;
 
 }

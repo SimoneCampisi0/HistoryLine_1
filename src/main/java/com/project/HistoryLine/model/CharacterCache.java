@@ -29,8 +29,8 @@ public class CharacterCache {
     @Column(nullable = false, name = "SAVE_DATE")
     private Date saveDate;
 
-    @Column(nullable = false, name = "DESCRIPTION", length = 10000)
-    private String description;
+    @OneToOne(cascade = CascadeType.ALL)
+    private CharacterDetails characterDetails;
 
     @OneToMany(mappedBy = "fkCharacterCache")
     private List<CharacterEventsCache> characterEventsDTOList;

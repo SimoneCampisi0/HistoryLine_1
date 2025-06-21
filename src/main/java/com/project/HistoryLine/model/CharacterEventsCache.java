@@ -22,7 +22,7 @@ public class CharacterEventsCache {
     @Column(nullable = false, name = "EVENT_NAME")
     private String eventName;
 
-    @Column(nullable = false, name = "EVENT_DESCRIPTION")
+    @Column(nullable = false, name = "EVENT_DESCRIPTION", length = 2000)
     private String eventDescription;
 
     @Column(nullable = false, name = "EVENT_DATE")

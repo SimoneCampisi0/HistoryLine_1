@@ -63,17 +63,25 @@ public class OpenAIService {
             """;
     private static final String QUERY_BORN_DEATH_IT = """
             Ricevuto il nome e la descrizione di un personaggio storico, indica in un array di stringhe (2 elementi),
-            l'anno di nascita e di morte di quel personaggio.
-            Es: Napoleone Bonaparte -> {"1769","1821"}.
-            Nel caso di personaggi nati o morti prima dell'anno 0, poni un - prima della data.
-            Esempio: Platone -> {"-428","-348"}.
+            l'anno di nascita e di morte di quel personaggio. Soltanto l'anno.
+            Usa sempre come schema il seguente JSON. SEMPRE. Esempio per Napoleone:
+            {
+                "born": "1769",
+                "death": "1821"
+            }
+            Nel caso di personaggi nati o morti prima dell'anno 0, poni un - prima della data in formato stringa (es. "-495").
+            Nel caso di personaggi storici la cui data di nascita è incerta, popola la stringa con un "?" al posto dell'anno.
             """;
     private static final String QUERY_BORN_DEATH_EN = """
-            Upon receiving the name and description of a historical figure, indicate in a string array (2 elements),
-            the year of birth and death of that figure.
-            Ex: Napoleon Bonaparte -> {"1769", "1821"}.
-            In the case of characters born or died before year 0, place a - before the date.
-            Example: Plato -> {"-428","-348"}.
+            Having received the name and description of a historical character, indicate in an array of strings (2 elements),
+          the year of birth and death of that character. Year only.
+          Always use the following JSON as a pattern. ALWAYS. Example for Napoleon:
+          {
+              "born": "1769",
+              "death": "1821"
+          }
+          In the case of characters born or died before year 0, place a - before the date in string format (e.g., "-495").
+          In the case of historical characters whose date of birth is uncertain, populate the string with a "?" in place of the year.
             """;
 
     private final ChatClient chatClient;
