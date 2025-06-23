@@ -102,6 +102,7 @@ function Search({ language, setResultEvent}) {
             console.log("charactersEventList: ", response);
             setResultEvent({
                 characterName: response.characterName,
+                characterDescription: response.characterDescription,
                 link: req.link,
                 events: response.characterEventDTOS
             });
