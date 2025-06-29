@@ -17,4 +17,6 @@ public class SuggestRDFJ4Response {
 
     private String itemDescription;
 
+    private String itemImageUrl;
+
 }
