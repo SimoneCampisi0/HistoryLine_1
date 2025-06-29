@@ -4,7 +4,7 @@ import './Search.css';
 import PropTypes from "prop-types";
 import {MDBTooltip} from "mdb-react-ui-kit";
 
-function Search({ language, setResultEvent}) {
+function Search({ language, setCharacterSelected}) {
     const [searchedParams, setSearchedParams] = useState({
         text: '',
         origin: '',
@@ -35,7 +35,7 @@ function Search({ language, setResultEvent}) {
             alreadySearched: true
         });
         setSuggestResults(null);
-        setResultEvent(null);
+        setCharacterSelected(null);
         console.log("clearSearch");
     }
 
@@ -54,7 +54,7 @@ function Search({ language, setResultEvent}) {
                     code: "001",
                 });
             }
-            setResultEvent(null);
+            setCharacterSelected(null);
             return false;
         }
         return true;
@@ -93,17 +93,17 @@ function Search({ language, setResultEvent}) {
             link: selected.item,
             extraOption: null,
             languageName: language,
-            birthDate: selected.birthDate,
         }
 
         setLoading(true);
         try {
             const response = await getCharactersEventList(req);
             console.log("charactersEventList: ", response);
-            setResultEvent({
+            setCharacterSelected({
                 characterName: response.characterName,
                 characterDescription: response.characterDescription,
                 link: req.link,
+                imageUrl: selected.itemImageUrl,
                 events: response.characterEventDTOS
             });
         } catch (err) {
@@ -238,7 +238,7 @@ function Search({ language, setResultEvent}) {
 
 Search.propTypes = {
     language: PropTypes.string.isRequired,
-    setResultEvent: PropTypes.func.isRequired,
+    setCharacterSelected: PropTypes.func.isRequired,
 }
 
 export default Search;
