@@ -21,87 +21,84 @@ public class CharacterDao extends RDF4JDao {
     }
 
     private static final Map<String, String> queryMap = Map.of("italian","""
-                 SELECT ?item ?itemLabel ?itemDescription ?article ?imageUrl
-                  WHERE {
-                  SERVICE wikibase:mwapi {
-                    bd:serviceParam wikibase:api "EntitySearch".
-                    bd:serviceParam wikibase:endpoint "www.wikidata.org".
-                    bd:serviceParam mwapi:search ?searchItem.
-                    bd:serviceParam mwapi:language "it".
-                    ?item wikibase:apiOutputItem mwapi:item.
-                  }
-                  ?item wdt:P31 wd:Q5.                    # è un umano
-                  ?item wdt:P570 ?dateOfDeath.            # ha data di morte ⇒ è deceduto
-        
-                  ## ricerca immagine opzionale
-                  OPTIONAL { ?item wdt:P18 ?image. }
-                  BIND(
-                    IF(BOUND(?image),
-                     CONCAT(
-                       "https://commons.wikimedia.org/wiki/Special:FilePath/",
-                       REPLACE(STR(?image), ".*Special:FilePath/", "")
-                     ),
-                     STR("")          # stringa vuota se l'immagine non c'è
-                    ) AS ?imageUrl
-                  )
-        
-                  OPTIONAL {
-                    ?article schema:about ?item;
-                           schema:inLanguage "it";
-                           schema:isPartOf <https://it.wikipedia.org/>.
-                  }
-                  ?item rdfs:label ?itemLabel.
-                  FILTER(LANG(?itemLabel) = "it")
-                  FILTER(CONTAINS(LCASE(?itemLabel), LCASE(?searchItem)))
-        
-                  ?item schema:description ?itemDescription.
-                  FILTER(LANG(?itemDescription) = "it")
-        
-                  FILTER NOT EXISTS { ?item wdt:P31 wd:Q4167410 }  # escludi disambigua
-                  }
-                  LIMIT 10
+                 SELECT ?item ?itemLabel ?itemDescription (SAMPLE(?article_) AS ?article) (SAMPLE(?imageUrl_) AS ?imageUrl)
+                     WHERE {
+                       SERVICE wikibase:mwapi {
+                         bd:serviceParam wikibase:api "EntitySearch" ;
+                                         wikibase:endpoint "www.wikidata.org" ;
+                                         mwapi:search ?searchItem ;
+                                         mwapi:language "it" .
+                         ?item wikibase:apiOutputItem mwapi:item .
+                       }
+                    
+                       ?item wdt:P31 wd:Q5 .
+                       ?item wdt:P570 ?dateOfDeath .
+                    
+                       OPTIONAL {
+                         ?item wdt:P18 ?image .
+                         BIND(
+                           CONCAT("https://commons.wikimedia.org/wiki/Special:FilePath/",\s
+                                  REPLACE(STR(?image), ".*Special:FilePath/", "")
+                           ) AS ?imageUrl_
+                         )
+                       }
+                    
+                       ?article_ schema:about ?item ;
+                                 schema:inLanguage "it" ;
+                                 schema:isPartOf <https://it.wikipedia.org/> .
+                    
+                       ?item rdfs:label ?itemLabel .
+                       FILTER (LANG(?itemLabel) = "it")
+                    
+                       ?item schema:description ?itemDescription .
+                       FILTER (LANG(?itemDescription) = "it")
+                    
+                       FILTER NOT EXISTS { ?item wdt:P31 wd:Q4167410 }
+                     }
+                     GROUP BY ?item ?itemLabel ?itemDescription
+                     LIMIT 10
+                     OFFSET 0
+                    
                 """,
             "english",
             """
-                 SELECT ?item ?itemLabel ?itemDescription ?article ?imageUrl
+                 SELECT ?item ?itemLabel ?itemDescription (SAMPLE(?article_) AS ?article) (SAMPLE(?imageUrl_) AS ?imageUrl)
                   WHERE {
-                  SERVICE wikibase:mwapi {
-                    bd:serviceParam wikibase:api "EntitySearch".
-                    bd:serviceParam wikibase:endpoint "www.wikidata.org".
-                    bd:serviceParam mwapi:search ?searchItem.
-                    bd:serviceParam mwapi:language "en".
-                    ?item wikibase:apiOutputItem mwapi:item.
+                    SERVICE wikibase:mwapi {
+                      bd:serviceParam wikibase:api "EntitySearch" ;
+                                      wikibase:endpoint "www.wikidata.org" ;
+                                      mwapi:search ?searchItem ;
+                                      mwapi:language "en" .
+                      ?item wikibase:apiOutputItem mwapi:item .
+                    }
+        
+                    ?item wdt:P31 wd:Q5 .
+                    ?item wdt:P570 ?dateOfDeath .
+        
+                    OPTIONAL {
+                      ?item wdt:P18 ?image .
+                      BIND(
+                        CONCAT("https://commons.wikimedia.org/wiki/Special:FilePath/",\s
+                               REPLACE(STR(?image), ".*Special:FilePath/", "")
+                        ) AS ?imageUrl_
+                      )
+                    }
+        
+                    ?article_ schema:about ?item ;
+                              schema:inLanguage "en" ;
+                              schema:isPartOf <https://en.wikipedia.org/> .
+        
+                    ?item rdfs:label ?itemLabel .
+                    FILTER (LANG(?itemLabel) = "en")
+        
+                    ?item schema:description ?itemDescription .
+                    FILTER (LANG(?itemDescription) = "en")
+        
+                    FILTER NOT EXISTS { ?item wdt:P31 wd:Q4167410 }
                   }
-                  ?item wdt:P31 wd:Q5.                    # è un umano
-                  ?item wdt:P570 ?dateOfDeath.            # ha data di morte ⇒ è deceduto
-        
-                  ## ricerca immagine opzionale
-                  OPTIONAL { ?item wdt:P18 ?image. }
-                  BIND(
-                    IF(BOUND(?image),
-                     CONCAT(
-                       "https://commons.wikimedia.org/wiki/Special:FilePath/",
-                       REPLACE(STR(?image), ".*Special:FilePath/", "")
-                     ),
-                     STR("")          # stringa vuota se l'immagine non c'è
-                    ) AS ?imageUrl
-                  )
-        
-                  OPTIONAL {
-                    ?article schema:about ?item;
-                           schema:inLanguage "en";
-                           schema:isPartOf <https://en.wikipedia.org/>.
-                  }
-                  ?item rdfs:label ?itemLabel.
-                  FILTER(LANG(?itemLabel) = "en")
-                  FILTER(CONTAINS(LCASE(?itemLabel), LCASE(?searchItem)))
-        
-                  ?item schema:description ?itemDescription.
-                  FILTER(LANG(?itemDescription) = "en")
-        
-                  FILTER NOT EXISTS { ?item wdt:P31 wd:Q4167410 }  # escludi disambigua
-                  }
+                  GROUP BY ?item ?itemLabel ?itemDescription
                   LIMIT 10
+                  OFFSET 0
                 """
             );
 
@@ -118,7 +115,7 @@ public class CharacterDao extends RDF4JDao {
                 .item(binding.getValue("article").stringValue())
                 .itemLabel(binding.getValue("itemLabel").stringValue())
                 .itemDescription(binding.getValue("itemDescription").stringValue())
-                .itemImageUrl(binding.getValue("imageUrl").stringValue())
+                .itemImageUrl(binding.getValue("imageUrl") != null ? binding.getValue("imageUrl").stringValue() : "")
                 .build();
         log.debug("Suggest response: {}", response);
         return response;
