@@ -5,7 +5,7 @@ import ReactFlagsSelect from "react-flags-select";
 import {useNavigate} from "react-router-dom";
 import { Offcanvas } from 'bootstrap';
 
-function Menu({ language, setLanguage }) {
+function Menu({ language, setLanguage, setCharacterSelected }) {
     const navigate = useNavigate();
     const [languageSelected, setLanguageSelected] = useState("IT");
 
@@ -26,6 +26,7 @@ function Menu({ language, setLanguage }) {
         const element = document.getElementById('mobileMenu');
         const offcanvas = Offcanvas.getInstance(element);
         offcanvas?.hide();
+        setCharacterSelected(null);
     }
 
     return (

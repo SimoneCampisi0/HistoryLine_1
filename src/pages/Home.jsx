@@ -10,7 +10,7 @@ function Home () {
     return (<>
         <div className="w-100 min-vh-100 bg-black">
             <div className="w-75 mx-auto">
-                <Menu language={language} setLanguage={setLanguage}/>
+                <Menu language={language} setLanguage={setLanguage} setCharacterSelected={setCharacterSelected} />
                 <Search language={language} characterSelected={characterSelected} setCharacterSelected={setCharacterSelected}/>
                 {characterSelected && characterSelected.characterDescription && <Description characterSelected={characterSelected}/>}
                 {characterSelected && characterSelected.events.length > 0 && <Timeline language={language} characterSelected={characterSelected}/>}
