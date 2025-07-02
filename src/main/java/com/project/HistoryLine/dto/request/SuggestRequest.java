@@ -17,4 +17,6 @@ public class SuggestRequest {
 
     private String languageName;
 
+    private PaginationRequest paginationRequest;
+
 }

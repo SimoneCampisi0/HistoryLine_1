@@ -14,7 +14,7 @@ import com.project.HistoryLine.exceptions.BusinessLogicException;
 import com.project.HistoryLine.model.CharacterCache;
 import com.project.HistoryLine.model.CharacterDetails;
 import com.project.HistoryLine.model.LanguageCache;
-import com.project.HistoryLine.rdf4j.CharacterDao;
+import com.project.HistoryLine.rdf4j.CharacterDaoRDF4J;
 import com.project.HistoryLine.rdf4j.dto.SuggestRDFJ4Response;
 import com.project.HistoryLine.repository.LanguageCacheRepo;
 import com.project.HistoryLine.service.cache.CharacterCacheService;
@@ -43,7 +43,7 @@ public class CharacterSearchService {
     private CharacterCacheService characterCacheService;
 
     @Autowired
-    private CharacterDao characterDao;
+    private CharacterDaoRDF4J characterDaoRDF4J;
 
     @Autowired
     private LanguageCacheRepo languageCacheRepo;
@@ -175,10 +175,12 @@ public class CharacterSearchService {
 
         try {
             LanguageCache languageCache = languageCacheRepo.findLanguageCacheByName(request.getLanguageName());
-            List<SuggestRDFJ4Response> suggestList = characterDao.executeFindCharacterQuery(request.getName(), languageCache.getName());
+            List<SuggestRDFJ4Response> suggestList = characterDaoRDF4J.executeFindCharacterQuery(request.getName(), languageCache.getName(), request.getPaginationRequest());
+            Integer totalElements = characterDaoRDF4J.executeCountCharacterQuery(request.getName(), languageCache.getName());
             return WikimediaResponse.builder()
                     .searchedKeyword(request.getName())
                     .items(suggestList)
+                    .totalElements(totalElements)
                     .build();
         } catch(Exception e) {
             throw new BusinessLogicException("Error in find list of character", "List of suggest characters not found", ExceptionLevelEnum.ERROR);

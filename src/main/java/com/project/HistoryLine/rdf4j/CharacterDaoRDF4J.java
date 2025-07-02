@@ -1,5 +1,6 @@
 package com.project.HistoryLine.rdf4j;
 
+import com.project.HistoryLine.dto.request.PaginationRequest;
 import com.project.HistoryLine.rdf4j.dto.SuggestRDFJ4Response;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -13,7 +14,7 @@ import java.util.Objects;
 
 @Slf4j
 @Component
-public class CharacterDao extends RDF4JDao {
+public class CharacterDaoRDF4J extends RDF4JDao {
 
     static abstract class QUERY_KEYS {
         public static final String FIND_CHARACTERS_SUGGEST = "find-characters-suggest";
@@ -102,7 +103,55 @@ public class CharacterDao extends RDF4JDao {
                 """
             );
 
-    public CharacterDao(RDF4JTemplate rdf4JTemplate) {
+    private static final Map<String, String> countQueryMap = Map.of("italian", """
+            SELECT (COUNT(DISTINCT ?item) AS ?totalItems) WHERE {
+                  SERVICE wikibase:mwapi {
+                    bd:serviceParam wikibase:api    "EntitySearch" ;
+                                   wikibase:endpoint "www.wikidata.org" ;
+                                   mwapi:search     ?searchItem ;
+                                   mwapi:language   "it" .
+                    ?item wikibase:apiOutputItem mwapi:item .
+                  }
+                  ?item wdt:P31 wd:Q5 .
+                  ?item wdt:P570 ?dateOfDeath .
+                  FILTER NOT EXISTS { ?item wdt:P31 wd:Q4167410 }
+                  ## solo chi ha un articolo in it.wikipedia
+                  ?article_ schema:about      ?item ;
+                            schema:inLanguage "it" ;
+                            schema:isPartOf   <https://it.wikipedia.org/> .
+                  ## solo chi ha label/description in italiano
+                  ?item rdfs:label         ?itemLabel .
+                  FILTER(LANG(?itemLabel)="it")
+                  ?item schema:description ?itemDescription .
+                  FILTER(LANG(?itemDescription)="it")
+                }
+            """,
+            "english",
+            """
+                SELECT (COUNT(DISTINCT ?item) AS ?totalItems) WHERE {
+                  SERVICE wikibase:mwapi {
+                    bd:serviceParam wikibase:api    "EntitySearch" ;
+                                   wikibase:endpoint "www.wikidata.org" ;
+                                   mwapi:search     ?searchItem ;
+                                   mwapi:language   "en" .
+                    ?item wikibase:apiOutputItem mwapi:item .
+                  }
+                  ?item wdt:P31 wd:Q5 .
+                  ?item wdt:P570 ?dateOfDeath .
+                  FILTER NOT EXISTS { ?item wdt:P31 wd:Q4167410 }
+                  ## solo chi ha un articolo in en.wikipedia
+                  ?article_ schema:about      ?item ;
+                            schema:inLanguage "en" ;
+                            schema:isPartOf   <https://en.wikipedia.org/> .
+                  ## solo chi ha label/description in inglese
+                  ?item rdfs:label         ?itemLabel .
+                  FILTER(LANG(?itemLabel)="en")
+                  ?item schema:description ?itemDescription .
+                  FILTER(LANG(?itemDescription)="en")
+                }
+                """);
+
+    public CharacterDaoRDF4J(RDF4JTemplate rdf4JTemplate) {
         super(rdf4JTemplate);
     }
 
@@ -121,6 +170,13 @@ public class CharacterDao extends RDF4JDao {
         return response;
     }
 
+    private Integer mapCountToResponse(BindingSet binding) {
+        if(binding.getValue("totalItems") == null) {
+            return null;
+        }
+        return Integer.parseInt(binding.getValue("totalItems").stringValue());
+    }
+
     @Override
     protected NamedSparqlSupplierPreparer prepareNamedSparqlSuppliers(NamedSparqlSupplierPreparer preparer) {
         return preparer.forKey(QUERY_KEYS.FIND_CHARACTERS_SUGGEST)
@@ -129,10 +185,28 @@ public class CharacterDao extends RDF4JDao {
                 .supplySparql(queryMap.get("italian"));
     }
 
-    public List<SuggestRDFJ4Response> executeFindCharacterQuery(String searchItem, String languageName) {
+    private String populatePagedQuery(String baseQuery, PaginationRequest pagination) {
+        String pagedQuery;
+        if(pagination == null || pagination.getLimit() == null || pagination.getOffset() == null) {
+            pagedQuery = baseQuery
+                    .replaceAll("LIMIT\\s*\\d+\\s*OFFSET\\s*\\d+",
+                            "LIMIT " + 10 + " OFFSET " + 0);
+        } else {
+            pagedQuery = baseQuery
+                    .replaceAll("LIMIT\\s*\\d+\\s*OFFSET\\s*\\d+",
+                            "LIMIT " + pagination.getLimit() + " OFFSET " + pagination.getOffset());
+        }
+        return pagedQuery;
+    }
+
+    public List<SuggestRDFJ4Response> executeFindCharacterQuery(String searchItem, String languageName, PaginationRequest pagination) {
         searchItem = searchItem.toLowerCase();
         log.info("searchItem: {}", searchItem);
-        List<SuggestRDFJ4Response> suggestList = getNamedTupleQuery(languageName.equals("english") ? QUERY_KEYS.FIND_CHARACTERS_SUGGEST : QUERY_KEYS.FIND_CHARACTERS_SUGGEST_IT)
+
+        String baseQuery = queryMap.get(languageName);
+        String pagedQuery = populatePagedQuery(baseQuery, pagination);
+        List<SuggestRDFJ4Response> suggestList = getRdf4JTemplate()
+                .tupleQuery(pagedQuery)
                 .withBinding("searchItem", searchItem)
                 .evaluateAndConvert()
                 .toStream()
@@ -141,6 +215,15 @@ public class CharacterDao extends RDF4JDao {
                 .toList();
         log.info("suggestList {}", suggestList);
         return suggestList;
+    }
+
+    public Integer executeCountCharacterQuery(String searchItem, String languageName) {
+        String countQuery = countQueryMap.get(languageName);
+        return getRdf4JTemplate()
+                .tupleQuery(countQuery)
+                .withBinding("searchItem", searchItem)
+                .evaluateAndConvert()
+                .toSingleton(this::mapCountToResponse);
     }
 
 }

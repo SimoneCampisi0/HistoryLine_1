@@ -20,4 +20,6 @@ public class WikimediaResponse {
 
     private List<SuggestRDFJ4Response> items;
 
+    private Integer totalElements;
+
 }
